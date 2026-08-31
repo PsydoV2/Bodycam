@@ -1,0 +1,76 @@
+/* Durchgehendes HUD-Overlay (CONCEPT.md §3.2) — bleibt über die ganze
+   Seite fix im Bild, nicht nur im Hero. Der Sektor-Tag wechselt per JS
+   je nach Section im Viewport (main.js), das erzählt nebenbei, dass man
+   durch verschiedene Einsätze/Locations scrollt. */
+.hud-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.hud-rec {
+  position: absolute;
+  top: 22px;
+  left: 32px;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  background: rgba(8, 9, 10, 0.5);
+  backdrop-filter: blur(3px);
+  padding: 6px 10px;
+  border-radius: 2px;
+}
+
+.hud-rec .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 7px;
+  animation: pulse 1.6s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.hud-batt {
+  position: absolute;
+  top: 22px;
+  right: 32px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  background: rgba(8, 9, 10, 0.5);
+  backdrop-filter: blur(3px);
+  padding: 6px 10px;
+  border-radius: 2px;
+}
+
+.hud-sector {
+  position: absolute;
+  bottom: 28px;
+  left: 32px;
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  background: rgba(8, 9, 10, 0.4);
+  backdrop-filter: blur(3px);
+  transition: opacity 0.3s ease;
+}
+
+.hud-sector.is-switching {
+  opacity: 0;
+}

@@ -1,0 +1,44 @@
+/* Gemeinsame Section-Konventionen (CONCEPT.md §2 Layout):
+   linksbündig, große Ruheflächen, kein zentrierter Text, großzügiger
+   Negativraum zwischen Sections. */
+.section-inner {
+  max-width: 900px;
+  padding: 140px 32px;
+}
+
+.inline-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+
+.inline-link:hover {
+  text-decoration-color: var(--accent);
+}
+
+main h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 48px;
+  max-width: 16ch;
+}
+
+/* Scroll-Reveal-Basiszustand — nur aktiv, wenn JS läuft (siehe
+   has-js-Klasse in index.html), sonst ist alles sofort sichtbar. */
+.has-js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+}
+
+.has-js [data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

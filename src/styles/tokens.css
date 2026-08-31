@@ -1,0 +1,19 @@
+/* Design-Tokens aus CONCEPT.md §2 — direkt aus dem Bildmaterial abgeleitet,
+   kein generisches Gaming-Preset. Ein einziger Farbakzent (Rot); alles
+   andere ist Graustufen/Sand. */
+:root {
+  --color-base: #08090a;
+  --color-surface: #111311;
+
+  --text-primary: #f2efe6;
+  --text-secondary: #b9b6ab;
+  --text-muted: #7c7a70;
+
+  --accent: #e2453f;
+  --sand: #a9906a;
+
+  --line: rgba(228, 225, 214, 0.3);
+
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}

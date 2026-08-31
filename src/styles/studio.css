@@ -1,0 +1,24 @@
+/* Bewusster Stilbruch (CONCEPT.md §5): ruhiger, weniger HUD, mehr Raum.
+   Der Kontrast zu den umliegenden Sections macht diese Section besonders. */
+.studio {
+  background: var(--color-surface);
+}
+
+.studio .section-inner {
+  padding-top: 180px;
+  padding-bottom: 180px;
+  max-width: 640px;
+}
+
+.studio h2 {
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 28px;
+}
+
+.studio p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}

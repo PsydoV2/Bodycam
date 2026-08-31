@@ -1,0 +1,64 @@
+/* Bewusst schlicht — keine HUD/Grain/Reveal-Effekte. Legal-Seiten sind
+   der eine Ort, an dem "Dokumentarfilm-Ästhetik" fehl am Platz wäre. */
+.legal {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 96px 32px 120px;
+}
+
+.legal a.back {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 48px;
+}
+
+.legal a.back:hover {
+  color: var(--text-secondary);
+}
+
+.legal h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.legal .legal-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.legal h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 19px;
+  color: var(--text-primary);
+  margin: 40px 0 12px;
+}
+
+.legal p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  max-width: 65ch;
+}
+
+.legal a {
+  color: var(--text-primary);
+}
+
+.legal .placeholder {
+  border: 1px dashed var(--line);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--sand);
+  margin: 16px 0;
+}

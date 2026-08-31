@@ -1,0 +1,42 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/jetbrains-mono/400.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  background: var(--color-base);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+}
+
+/* Dezentes Noise-Overlay über der ganzen Seite (CONCEPT.md §3.3) —
+   nicht nur über Videos, damit sich auch Textflächen nicht "sauber
+   digital" anfühlen. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* CONCEPT.md §4: Animation soll etwas erklären/bestätigen, nicht
+   dekorieren — wer reduzierte Bewegung bevorzugt, bekommt sie ganz
+   abgeschaltet statt nur verlangsamt. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
