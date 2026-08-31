@@ -28,6 +28,31 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Custom Scrollbar statt Browser-Standard — schlicht, im HUD-Look,
+   Rot nur als Hover-Feedback (bleibt der einzige Akzent, CONCEPT.md §2). */
+html {
+  scrollbar-color: var(--text-muted) var(--color-base);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--text-muted);
+  border: 3px solid var(--color-base);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
+}
+
 /* CONCEPT.md §4: Animation soll etwas erklären/bestätigen, nicht
    dekorieren — wer reduzierte Bewegung bevorzugt, bekommt sie ganz
    abgeschaltet statt nur verlangsamt. */
