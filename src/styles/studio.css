@@ -4,10 +4,16 @@
   background: var(--color-surface);
 }
 
+/* Der einzige Bruch mit dem linksbündigen Raster der restlichen Seite
+   (CONCEPT.md §2/§6) — Studio ist der "unfilmed"-Kontrastpunkt, das darf
+   auch räumlich spürbar sein, nicht nur im Fehlen von HUD/Grain. Block
+   zentriert, Text darin bleibt linksbündig lesbar (kein zentrierter
+   Fließtext — das wäre bei mehrzeiligen Absätzen einfach schlecht lesbar). */
 .studio .section-inner {
+  margin: 0 auto;
   padding-top: 180px;
   padding-bottom: 180px;
-  max-width: 640px;
+  max-width: 560px;
 }
 
 .studio h2 {

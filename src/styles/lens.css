@@ -1,19 +1,8 @@
+/* Bewusst ruhig, kein Pin/Scrub (siehe main.js-Kommentar) — vier kurze
+   Ein-Satz-Einträge rechtfertigen keine eigene Scroll-Choreografie. Läuft
+   über dasselbe [data-reveal]-Scroll-Reveal wie .modes. */
 .lens {
   background: var(--color-base);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
-/* Bug-Fix: als Flex-Item schrumpft .section-inner sonst auf seine
-   Content-Breite (align-items:center zentriert nur die Kreuzachse, die
-   Hauptachse/Breite bleibt "auto") — die Log-Einträge sind aber
-   position:absolute und tragen nichts zur intrinsischen Breite bei, also
-   kollabiert die Box auf ein paar hundert Pixel und der Fließtext bricht
-   in ein Dutzend Zeilen um. max-width:900px aus layout.css bleibt die
-   eigentliche Obergrenze. */
-.lens .section-inner {
-  width: 100%;
 }
 
 .log-list {
@@ -21,25 +10,6 @@
   display: flex;
   flex-direction: column;
   gap: 36px;
-}
-
-/* Gepinnt: Einträge blättern wie Seiten einer Akte statt untereinander
-   wegzufaden (CONCEPT.md §5/§6) — lens-pin.js steuert die Übergänge,
-   hier nur der gestapelte Aufbau. */
-.log-list.is-paged {
-  position: relative;
-  /* min-height wird von lens-pin.js dynamisch aus dem tatsächlichen
-     Inhalt gesetzt (Inline-Style) — dieser Wert ist nur ein Fallback für
-     den einen Frame vor dem ersten Messen. */
-  min-height: 1px;
-}
-
-.log-list.is-paged .log-entry {
-  position: absolute;
-  inset: 0;
-  border-top: none;
-  padding-top: 0;
-  align-items: flex-start;
 }
 
 .log-entry {

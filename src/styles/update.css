@@ -86,6 +86,24 @@
   color: var(--text-muted);
 }
 
+.update .section-inner > p {
+  margin-bottom: 12px;
+}
+
+/* Schließt die Section ab, statt daneben als eigene "Early access"-Section
+   zu stehen (die stand im Weg zwischen Modes und Gallery und sagte
+   inhaltlich dasselbe nochmal — Feedback/Discord gehört hier ans Ende
+   des Dispatches, nicht in einen eigenen Beat). */
+.update-note {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 60ch;
+}
+
 @media (max-width: 560px) {
   .update-head {
     align-items: flex-start;

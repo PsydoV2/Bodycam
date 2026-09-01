@@ -9,7 +9,6 @@ import './styles/acquire.css';
 import './styles/update.css';
 import './styles/lens.css';
 import './styles/modes.css';
-import './styles/early-access.css';
 import './styles/gallery.css';
 import './styles/studio.css';
 import './styles/footer.css';
@@ -22,7 +21,6 @@ import { initCursor } from './motion/cursor.js';
 import { initBoot } from './motion/boot.js';
 import { initDecodeText, decodeNow } from './motion/decode-text.js';
 import { initGalleryReel } from './motion/gallery-reel.js';
-import { initLensPin } from './motion/lens-pin.js';
 import { initStudioToggle } from './motion/studio-toggle.js';
 import { initChapterTransitions } from './motion/chapter-transitions.js';
 
@@ -45,13 +43,14 @@ suppressor.watch(document.querySelector('#hero'), 'hero');
 suppressor.watch(document.querySelector('#gallery'), 'gallery');
 
 // --- Sections -------------------------------------------------------
-// Reihenfolge ist hier nicht egal: Lens sitzt im Dokument VOR Gallery und
-// pinnt sich selbst (fügt einen Spacer ein, der alles danach nach unten
-// schiebt). Erst Lens, dann Gallery aufbauen, damit Gallerys Start-/
-// Endposition gegen das bereits verschobene Layout berechnet wird — sonst
-// startet/endet die Gallery-Pin an der falschen Stelle (zu früh/zu kurz).
+// Lens bekam in einer früheren Fassung eine eigene Pin/Scrub-Choreografie
+// (Log-Einträge blättern wie Akte-Seiten) — für nur vier kurze
+// Ein-Satz-Einträge stand der Scroll-Aufwand in keinem Verhältnis zum
+// Inhalt (zu lang für zu wenig Text). Jetzt läuft Lens über dasselbe
+// ruhige [data-reveal]-Scroll-Reveal wie Modes (weiter unten) — kein
+// eigenes Pin-Modul mehr nötig, dafür auch keine Pin-Spacer-Reihenfolge
+// mehr zu beachten.
 initHero({ reducedMotion });
-initLensPin({ reducedMotion });
 const gallery = initGalleryReel({ reducedMotion });
 initStudioToggle({ cursor });
 initChapterTransitions();
@@ -131,9 +130,8 @@ if (hudSectorEl && sectorSections.length) {
 }
 
 // --- Scroll-Reveal für Log-/Mode-Einträge ------------------------------
-// (Lens-Einträge übernimmt inzwischen lens-pin.js unter vollem Motion —
-// dieser Block bleibt als Fallback/für die Modes-Liste, die bewusst ohne
-// Zusatzbewegung auskommt, CONCEPT.md §6.)
+// Trägt sowohl Lens als auch Modes — beide bewusst ohne Pin/Zusatzbewegung
+// (CONCEPT.md §6: der Mechanismus muss zum Gewicht des Inhalts passen).
 const revealEls = document.querySelectorAll('[data-reveal]');
 if (revealEls.length) {
   const revealObserver = new IntersectionObserver(

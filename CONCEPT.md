@@ -133,11 +133,13 @@ Weiterhin eine durchgehende Single-Page. Jede Zeile jetzt mit explizitem Beat (l
 | **Hero** | Boot-Sequenz (§5), Scrub-Shader aktiv, Autofokus-Cursor, Decode-in-Headline | Laut — Einstieg |
 | **Acquire** | Steam-Widget, bewusst *unfilmed* | Ruhig — erste Pause vor Dispatch |
 | **Update/Dispatch** | Kommt per authored Scrub-Burst rein (§5); Countdown-Ziffern rollen wie ein mechanischer Bandzähler statt zu wechseln | Laut |
-| **The lens** | Gepinnt, Log-Einträge blättern im Scrub-Takt (§5) | Mittel |
+| **The lens** | Kein Pin mehr (Korrektur nach Rollout, siehe unten) — ruhiges `[data-reveal]`-Einblenden wie Modes | Ruhig |
 | **Modes** | Akkordeon unverändert — bewusst ohne Zusatzbewegung, damit man Zeit hat, Infos zu lesen | Ruhig |
 | **Environments/Gallery** | Horizontale Filmrolle, Drag-Scrub, höchste Shader-Intensität der Seite | Laut — zweiter Höhepunkt |
 | **Studio** | Kompletter Apparat aus: kein Grain, kein HUD, kein Cursor, kein Sound | Stille — größter Kontrast der Seite, macht die lauten Momente erst glaubwürdig |
 | **Footer** | Signal-End-Bookend (§5): Timestamp friert, Apparat fährt sichtbar herunter | Laut → aus |
+
+**Korrektur nach erstem Rollout — Lens:** die ursprüngliche Pin/Scrub-Choreografie ("Log-Einträge blättern wie Akte-Seiten") stand in keinem Verhältnis zum Inhalt — vier Ein-Satz-Einträge rechtfertigen keine eigene, mehrere hundert Pixel lange Scroll-Strecke. Lehre für §2 (Ambitionsniveau): der Mechanismus muss zum Gewicht des Inhalts passen, nicht nur zum Rest des Systems — dieselbe Zurückhaltung, die Modes schon hatte ("bewusst ohne Zusatzbewegung"), gilt jetzt auch hier.
 
 **Zu den Texten:** wie in v1 — reale Copy-Texte direkt von reissad.com übernehmen/adaptieren, dieses Dokument beschreibt Ton und Struktur, nicht den Wortlaut.
 
