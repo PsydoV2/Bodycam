@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bodycam — Scrub-Mechanismus-Prototyp (CONCEPT.md §4.1)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #08090a; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #b9b6ab;
+  }
+
+  /* ============================================================
+     STAGE: der Hero bleibt via position:sticky für 400vh Scroll-
+     Distanz im Bild stehen. So kann man denselben Frame beliebig
+     lang schnell/langsam an-/abscrubben, ohne dass der Hero aus
+     dem Viewport läuft — reine Demo-Krücke, kein Bauteil des
+     finalen Layouts (dort übernimmt später GSAP ScrollTrigger).
+     ============================================================ */
+  .scrub-stage { height: 400vh; position: relative; }
+
+  .hero {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    background: #000;
+  }
+
+  .hero video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Bleibt technisch "sichtbar" (opacity statt display:none), damit
+       der Browser weiter Frames dekodiert — der WebGL-Canvas malt
+       darüber die tatsächlich gezeigte, geshadete Version. */
+    opacity: 0;
+  }
+
+  canvas#scrub-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Fallback-Zustand (kein WebGL / prefers-reduced-motion) — exakt
+     der v1-Ansatz aus prototype.html, jetzt offiziell die
+     Referenz für CONCEPT.md §4.1 "Fallback". */
+  .hero.is-fallback::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 140px 40px rgba(0,0,0,0.85),
+      inset 0 0 60px 10px rgba(0,0,0,0.5);
+    background:
+      radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(220,90,40,0.10) 92%, rgba(220,90,40,0.22) 100%),
+      radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(40,110,220,0.08) 96%, rgba(40,110,220,0.18) 100%);
+    mix-blend-mode: screen;
+  }
+  .hero.is-fallback video { opacity: 1; filter: grayscale(0.15) contrast(1.08) brightness(0.82); }
+  .hero.is-fallback canvas { display: none; }
+  .hero.is-fallback .grain-fallback {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .hud {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+  .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .rec { display: flex; align-items: center; color: #d10000; white-space: nowrap; margin-right: 24px; font-variant-numeric: tabular-nums; }
+  .rec .dot { width: 7px; height: 7px; border-radius: 50%; background: #d10000; margin-right: 7px; animation: pulse 1.6s infinite ease-in-out; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .hud-right { text-align: right; color: #9b998e; white-space: nowrap; }
+  .cam-tag { align-self: flex-start; border: 1px solid rgba(228,225,214,0.3); padding: 3px 8px; color: #c7c4b8; font-size: 11px; }
+
+  /* Debug-Leiste — NICHT Teil des Produktionsdesigns, nur damit man
+     beim Review sieht, was die Scrub-Geschwindigkeit gerade treibt. */
+  .debug {
+    position: absolute;
+    bottom: 90px;
+    left: 32px;
+    z-index: 5;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: #7c7a70;
+    background: rgba(8,9,10,0.55);
+    border: 1px dashed rgba(209,0,0,0.4);
+    padding: 8px 10px;
+    width: 220px;
+  }
+  .debug-label { color: #d10000; margin-bottom: 6px; letter-spacing: 1px; }
+  .debug-bar-track { height: 4px; background: rgba(228,225,214,0.15); margin-top: 4px; }
+  .debug-bar-fill { height: 100%; background: #d10000; width: 0%; }
+
+  .hero-content { position: relative; z-index: 4; padding: 0 32px 64px; max-width: 640px; }
+  .eyebrow { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: #b8503f; letter-spacing: 1px; margin-bottom: 14px; }
+  h1 { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 52px; line-height: 1.08; color: #f2efe6; margin-bottom: 20px; max-width: 12ch; }
+  .sub { font-size: 16px; line-height: 1.6; color: #b9b6ab; max-width: 46ch; }
+
+  .scroll-hint {
+    position: absolute; bottom: 28px; right: 32px; z-index: 4;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #7c7a70;
+    writing-mode: vertical-rl; letter-spacing: 2px;
+  }
+
+  /* ============================================================
+     NOTES: Erklärung nach dem Scrub-Stage-Ende — kein Teil des
+     Produkts, sondern Review-Dokumentation für dieses Spike.
+     ============================================================ */
+  .notes { max-width: 640px; margin: 0 auto; padding: 96px 32px 160px; }
+  .notes h2 { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 26px; color: #f2efe6; margin-bottom: 20px; }
+  .notes p { font-size: 15px; line-height: 1.7; margin-bottom: 16px; }
+  .notes code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #e4e1d6; background: #111311; padding: 1px 5px; border-radius: 2px; }
+  .notes ul { margin: 0 0 16px 20px; }
+  .notes li { font-size: 15px; line-height: 1.7; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<div class="scrub-stage">
+  <section class="hero" id="hero">
+    <video id="hero-video" autoplay muted loop playsinline crossorigin="anonymous">
+      <source src="hero-loop.webm" type="video/webm">
+      <source src="hero-loop.mp4" type="video/mp4">
+    </video>
+    <canvas id="scrub-canvas"></canvas>
+    <div class="grain-fallback"></div>
+
+    <div class="hud">
+      <div class="hud-top">
+        <div class="rec"><span class="dot"></span>REC <span id="timecode">00:14:52</span></div>
+        <div class="hud-right">UNIT-7 · BATT 74%</div>
+      </div>
+      <div class="cam-tag">CAM_03 // FOREST SECTOR</div>
+    </div>
+
+    <div class="debug">
+      <div class="debug-label">DEBUG · SCRUB-VELOCITY</div>
+      <div id="debug-mode">webgl</div>
+      <div class="debug-bar-track"><div class="debug-bar-fill" id="debug-bar"></div></div>
+    </div>
+
+    <div class="scroll-hint">SCROLL TO SCRUB — TRY FAST AND SLOW</div>
+
+    <div class="hero-content">
+      <div class="eyebrow">BODYCAM · EARLY ACCESS</div>
+      <h1>See combat through the lens.</h1>
+      <p class="sub">Scrollst du schnell, spult das Band vor. Hältst du an, steht das Bild sofort wieder ruhig. Kein separater Effekt — eine Ursache (CONCEPT.md §4.1).</p>
+    </div>
+  </section>
+</div>
+
+<div class="notes">
+  <h2>Was das hier ist</h2>
+  <p>
+    Isolierter Spike für <strong>CONCEPT.md §4.1 — der Scrub-Mechanismus</strong>. Kein Ausbau der restlichen Seite,
+    kein Cursor (§4.2), kein Sound (§4.4) — bewusst nur der Kern, um ihn vor dem Rollout zu beurteilen.
+  </p>
+  <p>
+    Der Hero bleibt beim Scrollen 400vh lang stehen (<code>position: sticky</code>, nur Demo-Krücke — im finalen
+    Build übernimmt GSAP ScrollTrigger diese Rolle), damit sich derselbe Frame beliebig lang schnell und langsam
+    scrubben lässt.
+  </p>
+
+  <h2>Was reagiert</h2>
+  <ul>
+    <li><strong>Chromatic Aberration</strong> — Farbkanäle laufen bei schnellem Scrub sichtbar auseinander</li>
+    <li><strong>Grain</strong> — Baseline ~5&nbsp;%, steigt mit der Geschwindigkeit</li>
+    <li><strong>Tracking-Bars</strong> — kurze horizontale Störzeilen, nur bei hoher Geschwindigkeit</li>
+    <li><strong>Timecode</strong> — ist an die Scroll-<em>Position</em> gekoppelt (nicht an echte Zeit) und beginnt bei hoher Geschwindigkeit zu "stottern", bevor er sich beim Anhalten wieder stabilisiert</li>
+  </ul>
+
+  <h2>Fallback</h2>
+  <p>
+    Ohne WebGL-Support oder mit <code>prefers-reduced-motion: reduce</code> springt die Seite automatisch auf den
+    statischen v1-Zustand aus <code>prototype.html</code> — feste Vignette, festes Grain, Timecode tickt normal
+    weiter. Zum Testen: die Debug-Zeile zeigt oben <code>webgl</code> oder <code>fallback</code> an.
+  </p>
+
+  <h2>Tuning-Stellschrauben (im <code>&lt;script&gt;</code>-Block markiert)</h2>
+  <ul>
+    <li><code>VELOCITY_DIVISOR</code> — wie viel Scroll-px pro Frame für volle Intensität nötig sind</li>
+    <li><code>ATTACK</code> / <code>DECAY</code> — wie schnell die Intensität hoch- bzw. abschwingt</li>
+    <li><code>caAmount</code>, <code>grainAmt</code>, <code>trackStrength</code> im Fragment-Shader — maximale Stärke je Effekt</li>
+    <li><code>PX_PER_SECOND</code> — wie viel simulierte Bandzeit pro Scroll-Pixel vergeht</li>
+  </ul>
+
+  <h2>Offene Fragen fürs Review</h2>
+  <ul>
+    <li>Intensität insgesamt: zu subtil, zu viel, oder passend?</li>
+    <li>Timecode-Stottern beim schnellen Scrub: verständlich als "Bandzähler beim Vorspulen", oder eher verwirrend?</li>
+    <li>Tracking-Bars: sollen sie noch aggressiver/seltener sein?</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  const heroEl = document.getElementById('hero');
+  const video = document.getElementById('hero-video');
+  const canvas = document.getElementById('scrub-canvas');
+  const timecodeEl = document.getElementById('timecode');
+  const debugModeEl = document.getElementById('debug-mode');
+  const debugBarEl = document.getElementById('debug-bar');
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- Tuning-Konstanten (siehe "Notes"-Panel oben) ----------------
+  const VELOCITY_DIVISOR = 45;   // Scroll-px/Frame für volle Intensität (velocity = 1)
+  const ATTACK = 0.35;           // wie schnell velocity nach oben folgt
+  const DECAY = 0.055;           // wie schnell velocity wieder abklingt
+  const PX_PER_SECOND = 8;       // simulierte Bandsekunden pro Scroll-Pixel
+  const BASE_SECONDS = 14 * 60 + 52; // 00:14:52, wie im Live-Build
+
+  let gl = null;
+  if (!prefersReducedMotion) {
+    gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  }
+
+  if (!gl) {
+    // --- Fallback-Pfad: statischer v1-Look, kein WebGL nötig -------
+    heroEl.classList.add('is-fallback');
+    debugModeEl.textContent = prefersReducedMotion ? 'fallback (reduced-motion)' : 'fallback (no webgl)';
+    debugBarEl.style.width = '0%';
+    // Timecode tickt in diesem Zustand ganz normal wie im Live-Build,
+    // statt an Scroll-Position gekoppelt zu sein — bewusst ruhig.
+    let s = BASE_SECONDS;
+    setInterval(() => {
+      s += 1;
+      timecodeEl.textContent = formatTC(s);
+    }, 1000);
+    return;
+  }
+
+  debugModeEl.textContent = 'webgl';
+
+  // --- Shader-Setup --------------------------------------------------
+  const vertSrc = `
+    attribute vec2 aPosition;
+    varying vec2 vUv;
+    void main() {
+      vUv = aPosition * 0.5 + 0.5;
+      gl_Position = vec4(aPosition, 0.0, 1.0);
+    }
+  `;
+
+  const fragSrc = `
+    precision highp float;
+    varying vec2 vUv;
+    uniform sampler2D uTex;
+    uniform float uTime;
+    uniform float uVelocity;
+    uniform vec2 uResolution;
+
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+
+    void main() {
+      vec2 uv = vUv;
+
+      // Tracking-Bars: gelegentliche horizontale Zeilen-Verschiebung,
+      // nur spürbar bei hoher Scrub-Geschwindigkeit.
+      float trackStrength = smoothstep(0.15, 1.0, uVelocity);
+      float rowSeed = floor(uv.y * 90.0 + uTime * 2.0);
+      float rowNoise = hash(vec2(rowSeed, floor(uTime * 6.0)));
+      float displace = (rowNoise - 0.5) * 0.06 * trackStrength * step(0.92, rowNoise);
+      uv.x += displace;
+
+      // Chromatic Aberration: Kanal-Split skaliert mit Geschwindigkeit.
+      float caAmount = mix(0.0015, 0.014, uVelocity);
+      vec2 dir = normalize(uv - 0.5 + 0.0001);
+      float r = texture2D(uTex, uv - dir * caAmount).r;
+      float g = texture2D(uTex, uv).g;
+      float b = texture2D(uTex, uv + dir * caAmount).b;
+      vec3 color = vec3(r, g, b);
+
+      // Grain: Baseline + Geschwindigkeits-Boost.
+      float grainAmt = mix(0.05, 0.35, uVelocity);
+      float grain = (hash(uv * uResolution.xy + uTime * 60.0) - 0.5) * grainAmt;
+      color += grain;
+
+      // Vignette (wie v1, hier als Teil des Shaders statt CSS).
+      float vig = smoothstep(0.9, 0.35, length(uv - 0.5));
+      color *= mix(0.55, 1.0, vig);
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  function compileShader(type, src) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(shader));
+    }
+    return shader;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertSrc));
+  gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragSrc));
+  gl.linkProgram(program);
+  gl.useProgram(program);
+
+  // Fullscreen-Dreieck statt Quad — spart einen Vertex, UV-Rand wird
+  // per CLAMP_TO_EDGE der Textur sauber gehalten.
+  const posBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const aPosition = gl.getAttribLocation(program, 'aPosition');
+  gl.enableVertexAttribArray(aPosition);
+  gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+  const uTime = gl.getUniformLocation(program, 'uTime');
+  const uVelocity = gl.getUniformLocation(program, 'uVelocity');
+  const uResolution = gl.getUniformLocation(program, 'uResolution');
+  const uTex = gl.getUniformLocation(program, 'uTex');
+
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  // Ohne das hier landet das Videobild kopfüber im Canvas — WebGL liest
+  // Texturzeilen von unten nach oben, DOM-Quellen (Video/Image) von oben.
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Manche Browser blocken Autoplay trotz muted+playsinline in Edge-Fällen
+  // (z. B. automatisierte Navigation ohne echte User-Geste) — beim ersten
+  // Scroll/Klick erneut versuchen, statt stumm auf einem schwarzen Frame
+  // hängen zu bleiben.
+  video.play().catch(() => {
+    const resume = () => video.play().catch(() => {});
+    window.addEventListener('scroll', resume, { once: true, passive: true });
+    window.addEventListener('pointerdown', resume, { once: true });
+  });
+
+  // --- Scroll-Geschwindigkeit -----------------------------------
+  let lastScrollY = window.scrollY;
+  let rawVelocity = 0;
+  let velocity = 0;
+
+  window.addEventListener('scroll', () => {
+    const now = window.scrollY;
+    const delta = Math.abs(now - lastScrollY);
+    lastScrollY = now;
+    rawVelocity = Math.min(delta / VELOCITY_DIVISOR, 1);
+  }, { passive: true });
+
+  // --- Timecode: an Scroll-Position gekoppelt, stottert bei hoher
+  //     Geschwindigkeit, stabilisiert sich beim Anhalten -----------
+  function formatTC(totalSeconds) {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
+    return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':');
+  }
+
+  function updateTimecode(v) {
+    const trueSeconds = BASE_SECONDS + window.scrollY / PX_PER_SECOND;
+    if (v > 0.3 && Math.random() < v * 0.5) {
+      // Stottern: kurzzeitig ein Fantasie-Offset zeigen, wie ein
+      // Bandzähler, der beim Vorspulen nicht exakt mitkommt.
+      const jitter = trueSeconds + (Math.random() - 0.5) * 40 * v;
+      timecodeEl.textContent = formatTC(Math.max(0, jitter));
+    } else {
+      timecodeEl.textContent = formatTC(trueSeconds);
+    }
+  }
+
+  // --- Render-Loop -------------------------------------------------
+  // Zeitbasiert statt framebasiert: rAF wird gedrosselt/pausiert, sobald
+  // der Tab nicht sichtbar/fokussiert ist (Browser-Standardverhalten,
+  // kein Bug). Über echte Sekunden statt "pro Frame" gerechnet, holt der
+  // Zustand beim Zurückkehren sofort korrekt auf, statt eingefroren zu
+  // bleiben oder in einem Sprung überzukompensieren.
+  let lastT = null;
+  function loop(tMs) {
+    const t = tMs * 0.001;
+    const dt = lastT === null ? 1 / 60 : Math.min(t - lastT, 0.25);
+    lastT = t;
+
+    const rate = rawVelocity > velocity ? 1 - Math.pow(1 - ATTACK, 60 * dt) : 1 - Math.pow(1 - DECAY, 60 * dt);
+    velocity += (rawVelocity - velocity) * rate;
+    rawVelocity *= Math.pow(0.85, 60 * dt); // einzelne Scroll-Events klingen zwischen Events ab
+
+    debugBarEl.style.width = `${Math.round(velocity * 100)}%`;
+    updateTimecode(velocity);
+
+    if (video.readyState >= video.HAVE_CURRENT_DATA) {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
+    }
+
+    gl.uniform1f(uTime, t);
+    gl.uniform1f(uVelocity, velocity);
+    gl.uniform2f(uResolution, canvas.width, canvas.height);
+    gl.uniform1i(uTex, 0);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>

@@ -27,6 +27,15 @@ main h2 {
   max-width: 16ch;
 }
 
+/* Decode-in (CONCEPT.md §5): während eine [data-decode]-Headline noch
+   durch Zeichen zykelt, liest sie sich wie Systemtext (Mono) — erst der
+   finale Wert steht in der Display-Schrift. decode-text.js schaltet die
+   Klasse um. */
+[data-decode].is-decoding {
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
 /* Scroll-Reveal-Basiszustand — nur aktiv, wenn JS läuft (siehe
    has-js-Klasse in index.html), sonst ist alles sofort sichtbar. */
 .has-js [data-reveal] {

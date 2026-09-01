@@ -12,7 +12,19 @@
     </script>
   </head>
   <body>
+    <!-- Boot-Sequenz (CONCEPT.md §5) — statisch im Markup, damit sie ohne
+         FOUC vor jedem JS steht. boot.js entfernt sie nach ~1,3s oder Klick;
+         unter reduced-motion entfernt sie sich sofort. -->
+    <div class="boot" id="boot" role="presentation">
+      <div class="boot-scan"></div>
+      <div class="boot-text">
+        <span class="boot-dot"></span>
+        ACQUIRING SIGNAL<span class="boot-ellipsis"></span>
+      </div>
+    </div>
+
     <div class="grain"></div>
+    <canvas id="overlay-canvas" aria-hidden="true"></canvas>
 
     <div class="hud-overlay" aria-hidden="true">
       <div class="hud-rec"><span class="dot"></span>REC <span id="rec-time">00:14:52</span></div>
@@ -22,16 +34,17 @@
 
     <main>
       <section class="hero" id="hero" data-sector="FOREST SECTOR">
-        <video autoplay muted loop playsinline>
+        <video id="hero-video" autoplay muted loop playsinline>
           <source src="/hero-loop.webm" type="video/webm" />
           <source src="/hero-loop.mp4" type="video/mp4" />
         </video>
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
 
-        <div class="scroll-hint">SCROLL TO CONTINUE FEED</div>
+        <div class="scroll-hint">SCROLL TO SCRUB FEED</div>
 
         <div class="hero-content">
           <div class="eyebrow">BODYCAM · EARLY ACCESS</div>
-          <h1>See combat through the lens.</h1>
+          <h1 data-decode>See combat through the lens.</h1>
           <p class="sub">
             Every angle you hold, every callout you make, every bullet you send matters. Miss a check and you feel
             it.
@@ -55,9 +68,132 @@
         </div>
       </section>
 
+      <section class="update" id="update" data-sector="INCOMING TRANSMISSION">
+        <div class="section-inner">
+          <div class="update-tag">DISPATCH_08 // LOCKED &amp; LOADED</div>
+
+          <div class="update-head">
+            <h2 data-decode>Everything you know is getting rebuilt.</h2>
+            <div class="update-countdown" id="update-countdown" aria-live="polite">
+              <span class="countdown-label">T-MINUS · FREE UPDATE</span>
+              <span class="countdown-value" id="countdown-value">--d --:--:--</span>
+            </div>
+          </div>
+
+          <p class="update-intro">
+            <em>Locked &amp; Loaded</em> is the biggest update Bodycam has shipped since launch — animations, weapon
+            handling, audio, progression and a new map, rebuilt from the ground up. Free for everyone, live
+            September 2, 2026.
+          </p>
+
+          <ul class="mode-list update-list">
+            <li class="mode-row" data-reveal style="--reveal-i: 0">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-01">
+                <span class="mode-id">SYS_01</span>
+                <span class="mode-name">Procedural animations</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-01">
+                <p>
+                  Reloads, weapon handling and physical reactions now respond to stress, stance, ammo type and how
+                  close the fight is. Startle when something explodes near you.
+                </p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 1">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-02">
+                <span class="mode-id">SYS_02</span>
+                <span class="mode-name">Loadout &amp; customization</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-02">
+                <p>
+                  A full rework of primaries, secondaries, melee, explosives and gadgets — hundreds of attachments,
+                  unlocked through RP as you play.
+                </p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 2">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-03">
+                <span class="mode-id">SYS_03</span>
+                <span class="mode-name">Tactical tablet</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-03">
+                <p>
+                  The pause menu is gone. Loadout changes happen on an in-hand tablet, and you're exposed the whole
+                  time you're looking at it.
+                </p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 3">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-04">
+                <span class="mode-id">SYS_04</span>
+                <span class="mode-name">New tactical gear</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-04">
+                <p>
+                  Physics-based FPV drones and remote-detonated RC cars — new ways to see a room, or clear one,
+                  before you walk in.
+                </p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 4">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-05">
+                <span class="mode-id">SYS_05</span>
+                <span class="mode-name">Audio rebuilt</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-05">
+                <p>Sound design rebuilt end to end — reverb, occlusion and footsteps get sharper and more consequential.</p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 5">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-06">
+                <span class="mode-id">SYS_06</span>
+                <span class="mode-name">Trenches</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-06">
+                <p>A new map, and the clearest look yet at where Bodycam's visuals are headed.</p>
+              </div>
+            </li>
+            <li class="mode-row" data-reveal style="--reveal-i: 6">
+              <button class="mode-header" aria-expanded="false" aria-controls="update-brief-07">
+                <span class="mode-id">SYS_07</span>
+                <span class="mode-name">Optimization &amp; QoL</span>
+                <span class="mode-toggle" aria-hidden="true">+</span>
+              </button>
+              <div class="mode-brief" id="update-brief-07">
+                <p>
+                  Performance passes and dozens of smaller fixes, tuned from feedback across the Locked &amp; Loaded
+                  playtest.
+                </p>
+              </div>
+            </li>
+          </ul>
+
+          <p class="update-quote">
+            "Absolute realism and immersion, like nothing seen or felt before."
+            <span>— Luca Dassier, Studio Director</span>
+          </p>
+
+          <p>
+            <a
+              class="inline-link"
+              href="https://store.steampowered.com/news/app/2406770/view/674001920444073955"
+              target="_blank"
+              rel="noopener"
+              >Full dispatch on Steam ↗</a
+            >
+          </p>
+        </div>
+      </section>
+
       <section class="lens" id="lens" data-sector="FIELD LOG">
         <div class="section-inner">
-          <h2>The lens</h2>
+          <h2 data-decode>The lens</h2>
           <ol class="log-list">
             <li class="log-entry" data-reveal style="--reveal-i: 0">
               <span class="log-index">LOG_01</span>
@@ -89,7 +225,7 @@
 
       <section class="modes" id="modes" data-sector="TRAINING GROUND">
         <div class="section-inner">
-          <h2>Modes in early access</h2>
+          <h2 data-decode>Modes in early access</h2>
           <ul class="mode-list">
             <li class="mode-row" data-reveal style="--reveal-i: 0">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-01">
@@ -170,35 +306,43 @@
       </section>
 
       <section class="gallery" id="gallery" data-sector="FIELD ARCHIVE">
-        <div class="gallery-inner">
-          <h2>Environments</h2>
-          <div class="gallery-grid">
-            <figure class="media-frame" data-reveal style="--reveal-i: 0">
+        <div class="gallery-pin">
+          <h2 data-decode>Environments</h2>
+          <p class="gallery-hint">DRAG OR SCROLL TO ADVANCE THE REEL</p>
+          <div class="gallery-track">
+            <figure class="media-frame">
               <img src="/screenshots/preview.webp" alt="Aiming a shotgun through smoke in a burned forest" loading="lazy" />
+              <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:03:41</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 1">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213035.mp4" autoplay muted loop playsinline preload="none"></video>
+            <figure class="media-frame">
+              <video src="/clips/Aufzeichnung%202026-08-31%20213035.mp4" muted loop playsinline preload="none"></video>
+              <canvas aria-hidden="true"></canvas>
               <figcaption>URBAN SECTOR // 00:07:12</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 2">
+            <figure class="media-frame">
               <img src="/screenshots/preview%20%282%29.webp" alt="Graffiti-covered urban interior corridor" loading="lazy" />
+              <canvas aria-hidden="true"></canvas>
               <figcaption>URBAN SECTOR // 00:07:58</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 3">
+            <figure class="media-frame">
               <img src="/screenshots/preview%20%281%29.webp" alt="Sprinting through a burned forest with two teammates" loading="lazy" />
+              <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:04:58</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 4">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213312.mp4" autoplay muted loop playsinline preload="none"></video>
+            <figure class="media-frame">
+              <video src="/clips/Aufzeichnung%202026-08-31%20213312.mp4" muted loop playsinline preload="none"></video>
+              <canvas aria-hidden="true"></canvas>
               <figcaption>OUTSKIRTS // 00:09:03</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 5">
+            <figure class="media-frame">
               <img src="/screenshots/preview%20%283%29.webp" alt="Reloading a shotgun in close-up at the training ground" loading="lazy" />
+              <canvas aria-hidden="true"></canvas>
               <figcaption>TRAINING GROUND // 00:00:52</figcaption>
             </figure>
-            <figure class="media-frame" data-reveal style="--reveal-i: 6">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213626.mp4" autoplay muted loop playsinline preload="none"></video>
+            <figure class="media-frame">
+              <video src="/clips/Aufzeichnung%202026-08-31%20213626.mp4" muted loop playsinline preload="none"></video>
+              <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:14:10</figcaption>
             </figure>
           </div>
@@ -221,7 +365,7 @@
 
       <footer class="site-footer" id="footer" data-sector="SIGNAL END">
         <div class="section-inner">
-          <h2>Stay in the loop</h2>
+          <h2 data-decode>Stay in the loop</h2>
 
           <ul class="social-list">
             <li>

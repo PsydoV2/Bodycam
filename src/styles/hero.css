@@ -5,23 +5,42 @@
   display: flex;
   align-items: flex-end;
   background: #000;
-  /* Dezentes Fadenkreuz statt System-Cursor, nur im Hero (CONCEPT.md §4) */
-  cursor:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg fill='none' stroke='rgba(228,225,214,0.65)' stroke-width='1'%3E%3Cline x1='14' y1='0' x2='14' y2='10'/%3E%3Cline x1='14' y1='18' x2='14' y2='28'/%3E%3Cline x1='0' y1='14' x2='10' y2='14'/%3E%3Cline x1='18' y1='14' x2='28' y2='14'/%3E%3Ccircle cx='14' cy='14' r='1' fill='rgba(228,225,214,0.65)'/%3E%3C/g%3E%3C/svg%3E")
-      14 14,
-    crosshair;
 }
 
-.hero video {
+.hero video,
+.hero canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.hero video {
   object-fit: cover;
+}
+
+/* Solange der WebGL-Shader läuft (CONCEPT.md §4.1), bleibt das rohe Video
+   unsichtbar (aber weiter dekodierend — Canvas liest daraus) und der
+   Canvas zeigt die geshadete Version. Ohne WebGL/unter reduced-motion
+   greift stattdessen der v1-CSS-Fallback (Filter + ::after-Vignette). */
+.hero.is-shaded video {
+  opacity: 0;
+}
+
+.hero.is-shaded canvas {
+  display: block;
+}
+
+.hero.is-fallback canvas {
+  display: none;
+}
+
+.hero.is-fallback video {
   filter: grayscale(0.15) contrast(1.08) brightness(0.82);
 }
 
-/* Basisabdunklung, damit Text auf jedem Frame lesbar bleibt */
+/* Basisabdunklung, damit Text auf jedem Frame lesbar bleibt — unabhängig
+   vom Shader-/Fallback-Zustand. */
 .hero::before {
   content: '';
   position: absolute;
@@ -36,9 +55,10 @@
   z-index: 1;
 }
 
-/* Fisheye-Vignette + Farbversatz an den Ecken — der Aufnahme-Rand,
-   CONCEPT.md §3.1, angelehnt an den In-Game-Effekt bei Sprint/Explosion */
-.hero::after {
+/* Fisheye-Vignette + Farbversatz — NUR im Fallback-Zustand: der Shader
+   bringt seine eigene Vignette/CA bereits mit (CONCEPT.md §4.1), eine
+   zusätzliche CSS-Vignette würde die Ecken doppelt abdunkeln. */
+.hero.is-fallback::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -75,7 +95,8 @@
   line-height: 1.08;
   color: var(--text-primary);
   margin-bottom: 20px;
-  max-width: 12ch;
+  max-width: 14ch;
+  min-height: 1.08em;
 }
 
 .hero .sub {
@@ -93,6 +114,9 @@
 }
 
 .btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 500;
@@ -106,6 +130,49 @@
   background: none;
   appearance: none;
   -webkit-appearance: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Scan-Sweep statt generischem Fade — ein schmaler Lichtstreif liest den
+   Button einmal ab, wie ein Rangefinder/Fokus-Check (passt zum
+   Kamera-Vokabular der Seite, CONCEPT.md §4.2). Rein dekorativ auf einer
+   eigenen Ebene, blockiert keine Klicks. */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Negativer Index: malt über den eigenen Hintergrund, aber HINTER dem
+     Button-Text (Inline-Content sitzt im Stacking immer über negativ
+     positionierten Kindern) — der Sweep verdeckt so nie die Beschriftung,
+     ganz ohne zusätzliches Wrapper-Element im Markup. */
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 40%, rgba(242, 239, 230, 0.22) 50%, transparent 60%);
+  transform: translateX(-140%);
+  pointer-events: none;
+}
+
+.btn:hover::after {
+  transform: translateX(140%);
+  transition: transform 0.55s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .btn-primary {
@@ -116,9 +183,18 @@
   color: var(--text-primary);
 }
 
+.btn-primary:hover {
+  background: #e51818;
+}
+
 .btn-secondary {
-  border: 1px solid var(--line);
+  border-color: var(--line);
   color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  background: rgba(209, 0, 0, 0.08);
 }
 
 .scroll-hint {

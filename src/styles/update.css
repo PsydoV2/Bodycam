@@ -1,0 +1,97 @@
+/* "Dispatch"-Section für das v0.8 "Locked & Loaded"-Update — bewusst im
+   selben Case-File-Ton wie .acquire (Border-Box statt eigene Farbe), damit
+   der Akzent (Rot) hier auf den Tag/Countdown fällt statt auf eine zweite
+   Hintergrundfarbe (CONCEPT.md §2: ein einziger Farbakzent). */
+.update {
+  background: var(--color-base);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.update-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.update-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.update-head h2 {
+  margin-bottom: 0;
+}
+
+.update-countdown {
+  font-family: var(--font-mono);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.countdown-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.countdown-value {
+  font-size: 22px;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.update-countdown.is-live .countdown-value {
+  color: var(--accent);
+}
+
+.update-intro {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 64ch;
+  margin-bottom: 48px;
+}
+
+.update-list {
+  margin-bottom: 44px;
+}
+
+.update-quote {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--text-primary);
+  max-width: 56ch;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+}
+
+.update-quote span {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-style: normal;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 560px) {
+  .update-head {
+    align-items: flex-start;
+  }
+
+  .update-countdown {
+    text-align: left;
+  }
+}

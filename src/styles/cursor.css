@@ -1,0 +1,90 @@
+/* Autofokus-Cursor (CONCEPT.md §4.2) — Sucherrahmen mit Autofokus-Bracket,
+   ersetzt den System-Cursor nur wenn aktiv (Maus, kein reduced-motion,
+   nicht innerhalb der "unfilmed" Studio-Section). */
+.has-af-cursor {
+  cursor: none;
+}
+
+.has-af-cursor.is-unfilmed {
+  cursor: auto;
+}
+
+.af-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1500;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  will-change: transform;
+}
+
+.af-cursor.is-visible {
+  opacity: 1;
+}
+
+.af-cursor.is-suppressed {
+  opacity: 0;
+}
+
+.af-corner {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--accent);
+  transition:
+    width 0.2s ease,
+    height 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.af-corner--tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+.af-corner--tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+.af-corner--bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+.af-corner--br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.af-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
+}
+
+/* Bei Hover über Interaktivem "rastet" der Rahmen ein — kleiner, fester
+   Fokus statt lockerem Sucherquadrat, wie eine Autofokus-Bestätigung. */
+.af-cursor.is-focused .af-corner {
+  width: 5px;
+  height: 5px;
+}
+
+.af-cursor.is-focused .af-dot {
+  opacity: 0;
+}

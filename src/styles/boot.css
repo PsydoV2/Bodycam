@@ -1,0 +1,81 @@
+/* Boot-Sequenz (CONCEPT.md §5) — "Signal wird aufgebaut" beim ersten Laden.
+   Bookend zum Footer-"SIGNAL END" (siehe footer.css). */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+  overflow: hidden;
+}
+
+.boot.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(242, 239, 230, 0.06) 0px,
+    rgba(242, 239, 230, 0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: boot-sweep 1.1s linear infinite;
+}
+
+@keyframes boot-sweep {
+  0% {
+    transform: translateY(-8%);
+  }
+  100% {
+    transform: translateY(8%);
+  }
+}
+
+.boot-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+}
+
+.boot-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 10px;
+  animation: pulse 0.5s infinite ease-in-out;
+}
+
+.boot-ellipsis::after {
+  content: '';
+  animation: boot-ellipsis 1s steps(4, end) infinite;
+}
+
+@keyframes boot-ellipsis {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+}

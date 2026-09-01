@@ -1,152 +1,202 @@
 # Bodycam — Redesign-Konzept
 
-Inoffizielles Fan-/Portfolio-Projekt zur Website von [Bodycam](https://store.steampowered.com/app/2406770/Bodycam/) (Reissad Studio). Dieses Dokument ist die gemeinsame Referenz für alle, die daran arbeiten (Mensch oder Agent) — es beschreibt die Vision, nicht die Implementierung. Tech-Stack-Entscheidungen kommen bewusst erst nach diesem Dokument.
+Inoffizielles Fan-/Portfolio-Projekt zur Website von [Bodycam](https://store.steampowered.com/app/2406770/Bodycam/) (Reissad Studio). Dieses Dokument ist die gemeinsame Referenz für alle, die daran arbeiten (Mensch oder Agent) — es beschreibt die Vision, nicht die Implementierung.
 
 Original-Website zum Vergleich: https://reissad.com/
 
+**Versionshinweis:** Diese Fassung ersetzt die erste Konzeptversion vollständig. Grund steht in §0.
+
 ---
 
-## 1. Leitidee
+## 0. Warum Version 1 nicht reicht
 
-> Die Website verhält sich wie eine laufende Bodycam-Aufnahme — nicht wie eine Werbeseite über eine.
+Der aktuelle Live-Stand (siehe `index.html`) setzt die Grundidee korrekt um, aber zu vorsichtig: Video-Loop, CSS-Vignette, HUD-Text oben drüber, Listen faden beim Scrollen sanft ein. Das Ergebnis ist eine gute, stilvolle Gaming-Landingpage — aber keine, die jemanden zum Stoppen bringt. Der HUD-Layer ist Dekoration, keine Mechanik: nichts auf der Seite reagiert bisher *spezifisch* darauf, dass man angeblich eine Aufnahme ansieht. Man scrollt hier genauso wie auf jeder anderen Seite auch.
 
-Das Original-Reissad.com ist ein sauberes, aber generisches Framer-Template. Es zeigt Bodycam-Footage, *ist* aber selbst keine Bodycam-Erfahrung. Der Unterschied ist der ganze Punkt dieses Redesigns.
+Diese Überarbeitung hebt den Anspruch von „stilvolle Landingpage" auf „hält neben Awwwards-Site-of-the-Day-Arbeit stand". Konkret heißt das: **jede Section muss etwas tun, das nur mit genau diesem Konzept so funktioniert** — nicht nur gut aussehen. Details in §2.
 
-Alles, was gebaut wird, sollte an dieser Frage gemessen werden: **Fühlt sich das an wie ein Auszug aus einer echten Aufnahme, oder wie eine Website, die Aufnahmen zeigt?**
+---
+
+## 1. Leitidee (geschärft)
+
+> Du bedienst keine Website über eine Bodycam-Aufnahme. Du scrubbst durch eine.
+
+Die alte Leitidee ("die Website verhält sich wie eine laufende Aufnahme") war richtig, aber in v1 nur eine visuelle Hülle: Vignette + HUD-Text über einer sonst ganz normalen Fade-in-Seite. Ab jetzt ist die Aufnahme-Metapher ein Mechanismus, kein Kostüm: **die Scroll-Position ist der Timecode, die Scroll-Geschwindigkeit ist die Bandgeschwindigkeit.** Scrollt man schnell, spult die Aufnahme sichtbar vor — Tracking-Störungen, Rauschen, Kanalrauschen im Ton, der HUD-Zähler springt statt zu ticken. Hält man an, steht das Bild sofort wieder ruhig und scharf. Es soll keinen Moment geben, an dem man vergisst, dass man ein Band abspielt und keine Website liest.
+
+Diese eine mechanische Wahrheit trägt den Rest des Konzepts (§4) und ersetzt drei vorher lose nebeneinanderstehende Ideen aus v1 (Vignette, Grain, Kanalwechsel-Static) durch ein einziges System mit einer Ursache.
 
 ### Nicht-Ziele
 - Kein generisches "AI-Gaming-Landingpage"-Layout (Cards mit Schatten, Gradient-Wischer, ALL-CAPS-Eyebrows über jeder Section)
-- Kein Feature-Overkill — lieber ein starker, konsequent durchgezogener Signature-Moment als zehn halbe Effekte
 - Keine Holzhammer-Militär-Ästhetik (Tarnmuster, Stacheldraht-Rahmen) — das Spiel ist roh und dokumentarisch, nicht "Call of Duty Recruiting Page"
+- **Kein rotierendes 3D-Waffenmodell im Hero.** Das ist die erwartbare Antwort jeder Shooter-Website (CoD, Valorant, Battlefield — alle machen das). Es lenkt vom eigentlichen Kern ab, statt ihn zu tragen. Begründung der bewussten Entscheidung dagegen: §4.3.
+- Keine Animation, die feuert, ohne dass Scroll-/Scrub-Geschwindigkeit etwas damit zu tun hat. Jede Bewegung muss sich auf den Timecode zurückführen lassen — sonst ist es nur ein weiterer isolierter Effekt (siehe Leitfrage, §11).
+- Kein Sound, der ohne explizite Aktion läuft. Opt-in, jederzeit sichtbar an-/ausschaltbar über einen HUD-Chip, niemals automatisch hörbar.
 
 ---
 
-## 2. Design-Tokens
+## 2. Ambitionsniveau — der Maßstab
+
+Der Test für jede Entscheidung ab hier: Würde das auf Awwwards/FWA als Site of the Day bestehen, oder würde ein Juror denken "nettes dunkles Gaming-Theme, kenn ich"? Drei konkrete Signale trennen die beiden Ebenen:
+
+1. **Bewegung hängt an einem echten Mechanismus**, nicht nur an Scroll-Position. Element beim Scrollen einblenden ist Parallax — das kann jede Seite. Element reagiert auf *wie schnell* gescrollt wird, weil das im fiktiven System (Bandgeschwindigkeit) eine Bedeutung hat — das kann nur diese Seite.
+2. **Es gibt einen Moment, den man so nirgendwo sonst sieht** — nicht "auch hübsch gemacht", sondern "wie haben die das gebaut". Auf dieser Seite ist das der Scrub-Mechanismus (§4.1) und die Filmrolle-Gallery (§6).
+3. **Die ruhigen Passagen sind genauso bewusst gestaltet wie die lauten.** Durchgehende Intensität ermüdet und wirkt billig; Kontrast macht den lauten Moment erst glaubwürdig. Deshalb bekommt diese Fassung explizite "unfilmed"-Beats (§3, §6) statt HUD-Overlay auf jeder einzelnen Section.
+
+---
+
+## 3. Design-Tokens
 
 ### Farbe
-Abgeleitet direkt aus dem Bildmaterial (verbrannter Wald, Sandfarben Trainingsgelände, Rost/Blut-Akzente), nicht aus einem generischen Gaming-Preset.
+Unverändert aus dem Bildmaterial abgeleitet (verbrannter Wald, Sandfarben Trainingsgelände, Rost/Blut-Akzente) — das war in v1 schon richtig undurchschnittlich und bleibt so.
 
 | Rolle | Hex | Verwendung |
 |---|---|---|
 | Basis (fast schwarz) | `#08090a` | Seitenhintergrund |
-| Oberfläche | `#111311` | Cards, Panels |
+| Oberfläche | `#111311` | Cards, Panels, "unfilmed"-Sections |
 | Text primär | `#f2efe6` | Headlines |
 | Text sekundär | `#b9b6ab` | Fließtext |
 | Text gedämpft | `#7c7a70` | Meta/HUD-Nebentext |
-| Akzent (REC/Warnung) | `#e2453f` | Einziger Farbakzent — REC-Punkt, Primary-CTA, kritische Marker |
-| Sand/Erde | `#a9906a` | Sekundäre Flächen, dokumentarische Wärme (Trainingsgelände-Holz) |
+| Akzent (REC/Warnung) | `#d10000` | Einziger Dauer-Farbakzent — REC-Punkt, Primary-CTA, kritische Marker |
+| Sand/Erde | `#a9906a` | Sekundäre Flächen, dokumentarische Wärme |
 | Rand/Linie | `rgba(228,225,214,0.3)` | Hairline-Borders |
+| Glitch warm | `rgba(220,90,40,0.85)` | **Nur** während Scrub-Bursts (§4.1) — CA-Split, warmer Kanal |
+| Glitch kalt | `rgba(40,110,220,0.7)` | **Nur** während Scrub-Bursts (§4.1) — CA-Split, kalter Kanal |
 
-**Regel:** Ein einziger Farbakzent (Rot). Alles andere ist Graustufen/Sand. Keine zweite "Pop"-Farbe — Disziplin ist hier Teil der Ästhetik.
+**Regel bleibt:** ein einziger Dauer-Akzent (Rot). Die Glitch-Duotone-Paare sind kein zweiter "Pop"-Ton für die Ruhe-UI — sie existieren ausschließlich als Nebenprodukt der Scrub-Mechanik, nie als statisches Dekor. Genau diese Disziplin ist es, die den Effekt glaubwürdig hält statt "Cyberpunk-Filter".
 
 ### Typografie
-- **Display/Headlines:** Inter (500), sentence case, keine All-Caps-Headlines
-- **HUD/Meta/Labels:** JetBrains Mono — für alles, was wie "Systemtext" wirken soll (Timestamps, Kamera-IDs, Sektor-Tags)
+- **Display/Headlines:** Inter (500), sentence case
+- **HUD/Meta/Labels/Timecode:** JetBrains Mono — diegetisch begründet (Overlay einer echten Kamera)
 - **Fließtext:** Inter (400), Zeilenlänge < 70 Zeichen
 
-Die Mono-Schrift ist kein generisches "Tech-Label"-Gimmick hier — sie hat eine diegetische Begründung (HUD-Overlay einer echten Kamera), das rechtfertigt die Verwendung.
+**Bewusst geprüft und verworfen:** eine zweite, "charaktervollere" Display-Schrift statt Inter. Inters Neutralität liest sich wie ein System-Overlay, nicht wie eine Marke — das passt besser zu einer Aufnahmegeräte-Optik als eine opinionated Headline-Schrift. Die Persönlichkeit kommt hier nicht aus den Buchstabenformen, sondern daraus, *was der Text tut* (§5: Decode-in, Tape-Counter-Ziffern) — das ist der bewusste Risiko-Punkt dieses Konzepts, nicht die Schriftwahl.
 
 ### Layout
 - Linksbündig, große Ruhe-Flächen. Kein zentrierter Hero-Text.
-- Volle Bildbreite für alle Screenshots/Clips — nichts wird in kleine Cards gequetscht
-- Großzügiger Negativraum zwischen Sections (kein dichtes Grid)
+- Volle Bildbreite für alle Screenshots/Clips — nichts in kleine Cards gequetscht
+- **Neu — Apparat-Lifecycle:** Sections sind entweder *gefilmt* (HUD, Grain/Scrub-Shader, Autofokus-Cursor aktiv) oder bewusst *unfilmed* (kompletter Apparat aus — Studio-Section, siehe §6). Das war in v1 nicht explizit; jetzt ist es eine Regel pro Section, keine Ausnahme.
 
 ---
 
-## 3. Signature-Elemente
+## 4. Signature-System
 
-Das ist der Teil, in den die Boldness fließt — der Rest bleibt bewusst ruhig.
+### 4.1 Der Scrub-Mechanismus (Herzstück)
 
-### 3.1 Der Aufnahme-Rand (wichtigstes Element)
-Jede große Bildfläche (Hero-Video, Gallery, ggf. Sections) bekommt den charakteristischen Fisheye-Vignette-Rand mit leichtem Farbversatz an den Ecken — inspiriert vom tatsächlichen In-Game-Effekt (tritt im Spiel situativ bei Sprint/Explosion auf, siehe `assets/screenshots/`). Umgesetzt per CSS `box-shadow`/`radial-gradient`, kein WebGL nötig.
+Ein Fullscreen-WebGL-Shader-Layer (siehe §9 — OGL, kein Three.js) liegt über allen Video-/Bildflächen der gefilmten Sections. Seine Uniforms werden live aus der Scroll-Geschwindigkeit gespeist (via Lenis/ScrollTrigger, §5):
 
-Ein funktionierender Prototyp dieses Effekts liegt in `prototype.html` (Hero-Sektion) — als Referenzimplementierung, nicht als finaler Code.
+- **Grain-Intensität** — Baseline ~5 % wie in v1, steigt mit Scrub-Geschwindigkeit
+- **Chromatic-Aberration-Spread** — Kanäle laufen bei schnellem Scrub sichtbar auseinander (Glitch-Warm/-Kalt, §3)
+- **Horizontale Tracking-Bars** — kurze, harte Störzeilen, wie beim Spulen eines Bandes
+- **HUD-Timestamp** — läuft nicht mehr als separate, vom Scroll unabhängige Uhr (das war v1s größte Schwäche: eine Fake-Uhr, die nichts mit der Seite zu tun hat). Er *ist* jetzt die Scroll-Position, gemappt auf einen Timecode, und springt beim schnellen Scrub sichtbar statt zu ticken — wie ein Bandzähler beim Vorspulen.
 
-### 3.2 HUD-Layer
-Durchgehendes, dezentes Overlay: REC-Punkt (pulsierend), Timestamp, Kamera-ID/Sektor-Tag, Akku-Stand. Wandert leicht mit dem Content mit (z. B. Sektor-Tag ändert sich pro Section: `CAM_03 // FOREST SECTOR`, `CAM_03 // TRAINING GROUND`, etc.) — das erzählt nebenbei, dass man durch verschiedene Einsätze/Locations scrollt.
+Bei Stillstand: sauberes, ruhiges Bild, keine Artefakte — die Disziplin aus v1 bleibt, nur ist der ruhige Zustand jetzt der *Default*, kein Dauerzustand ohne Gegenpol.
 
-### 3.3 Film-Grain
-Sehr dezentes Noise-Overlay (~5% Opacity) über der ganzen Seite, nicht nur über Videos — sorgt dafür, dass sich auch reine Textflächen nicht "sauber digital" anfühlen.
+**Fallback:** kein WebGL verfügbar oder `prefers-reduced-motion` → statischer CSS-Vignette+Grain-Zustand wie in v1. Der bestehende `prototype.html`-Ansatz wird dadurch nicht obsolet, sondern zur offiziellen Fallback-Referenz (§10).
 
-### 3.4 Der 3D-/Wow-Moment
-Du wolltest explizit ein 3D-Element mit Wow-Effekt. Drei Optionen, **aber nur eine davon umsetzen** (Restraint-Prinzip — ein starker Moment schlägt drei halbe):
+**Präzisierung nach erstem Rollout:** Tracking-Bars sind ein Band-Scrub-Artefakt und bleiben exklusiv den Video-Shadern vorbehalten (Hero, Gallery — dort liegt tatsächlich Aufnahme-Material vor). Der seitenweite Overlay-Layer über Fließtext-Sections (Lens, Modes, Update, ...) zeigt nur die Grain-Baseline, keine Tracking-Bars — über reinem UI/Text sahen sie wie ein Rendering-Fehler aus, nicht wie Teil einer Aufnahme.
 
-**Option A — Waffen-Inspect im Hero (empfohlen, guter Aufwand/Wirkung-Bezug)**
-Ein einzelnes, hochwertig beleuchtetes 3D-Modell (z. B. die Shotgun aus Bild 4) liegt/schwebt am unteren Bildrand des Heros, reagiert leicht auf Mausbewegung (Parallax-Tilt), spielt beim Laden eine kurze "Waffen-Check"-Animation (wie im Spiel: Patrone einlegen, siehe hochgeladenes Bild). Three.js + ein GLB-Modell, kein Vollbild-3D nötig.
+Dieser eine Mechanismus ersetzt und vereint drei v1-Ideen, die vorher unabhängig nebeneinanderstanden: Aufnahme-Rand-Vignette, Film-Grain, Kanalwechsel-Static bei Section-Wechseln. Eine Ursache, drei sichtbare Symptome — das ist der Unterschied zwischen einem System und einer Effekt-Sammlung.
 
-**Option B — Scroll-getriebene Kamera-Fahrt durch eine 3D-Szene**
-Beim Scrollen bewegt sich eine simple 3D-Umgebung (verbrannter Wald, low-poly/stilisiert reicht) wie eine Kamerafahrt mit an. Hoher Wow-Faktor, aber deutlich mehr Aufwand (Szene bauen, Performance-Tuning) und Risiko, dass es ruckelt/nicht zum rohen Fotorealismus-Look passt, wenn die 3D-Assets nicht gut genug sind.
+### 4.2 Autofokus-Cursor (zweite Ebene, trägt den Mechanismus in die Mikro-Interaktion)
 
-**Option C — Interaktives Case-File/Diorama**
-Kleine 3D-Szene (z. B. Trainingsgelände als Diorama), die man frei drehen kann, mit Hotspots zu den Modi. Eher ein Gimmick in einer Nebensektion als Hero-Moment.
+Custom Cursor als Sucherrahmen mit leichtem physischem Nachlauf (lerp statt 1:1-Bewegung — wie eine handgehaltene Kamera, die der Bewegung minimal hinterherzieht). Über interaktiven Elementen schnappt ein Autofokus-Bracket ein, begleitet von einem kurzen Blur-zu-Scharf-Pull. Das ersetzt jeden generischen Hover-Scale-Effekt durch etwas, das nur im Kamera-Kontext Sinn ergibt, und liefert nebenbei die Klick-Affordanz gratis mit.
 
-→ **Empfehlung: Option A.** Größter Wow-Effekt pro Aufwand, thematisch am direktesten am Spiel (die Waffe *ist* das Interface im Spiel), lässt sich isoliert bauen und testen, ohne den Rest der Seite zu blockieren.
+Deaktiviert außerhalb gefilmter Sections (Studio, §6) und komplett unter reduced-motion (nativer Cursor).
 
----
+### 4.3 Warum kein 3D-Waffenmodell
 
-## 4. Bewegung & Interaktion
+v1 diskutierte drei 3D-Optionen und empfahl einen schwebenden, beleuchteten Waffen-Inspect im Hero. Nach Prüfung gegen §2 verworfen: Ein rotierendes/Parallax-Waffenmodell ist die naheliegendste, meisterwartete Antwort jeder Shooter-Website — es beweist Handwerk, aber keine Idee, die spezifisch zu *diesem* Spiel gehört. Der Scrub-Mechanismus (§4.1) dagegen kann nur hier existieren, weil er direkt aus "es ist eine Aufnahme" folgt. Konsequenz: **kein 3D-Geometrie-Objekt auf der Seite**, nur ein Fullscreen-Shader — das spart zusätzlich das komplette Three.js/GLB-Gewicht (§9).
 
-- **Ein** orchestrierter Lade-Moment: kurzer "Signal wird aufgebaut"-Flackereffekt beim ersten Laden, dann stabilisiert sich das Bild — statt Fade-in-Slide-up auf jedem Element
-- Beim Wechsel zwischen großen Sections: kurzer Static/Interferenz-Frame (wie Kanalwechsel), sparsam eingesetzt, nicht bei jedem Scroll-Tick
-- Cursor als dezentes Fadenkreuz nur im Hero-Bereich (nicht seitenweit — nervt sonst)
-- Ansonsten: ruhig. Hover-States dezent, keine Animation, die nicht etwas erklärt oder bestätigt
+### 4.4 Sound (opt-in, nie automatisch hörbar)
+
+Sehr leises Ambient-Bett (Handschuh-Rascheln/Funkrauschen), an-/ausschaltbar über einen HUD-Chip ("AUDIO", gleiche Optik wie REC/BATT). Rauschen schwillt bei schnellem Scrub kurz an — gleiche Uniform wie §4.1, kein separates System. Autofokus-Snap (§4.2) bekommt ein sehr leises Bestätigungs-Ticken. Ohne explizites Antippen bleibt die Seite stumm — sowohl aus Browser-Policy-Gründen als auch, weil unaufgeforderter Sound auf Landingpages fast immer nervt statt beeindruckt.
 
 ---
 
-## 5. Seitenstruktur & Inhalte
+## 5. Motion- & Interaktionssystem
 
-Empfehlung: **eine durchgehende Single-Page** (Begründung: konsequenter "Einsatzprotokoll"-Scroll-Flow, einfacher zu teilen, besser fürs Portfolio). Unterseiten (z. B. echte News-Seite) sind eine mögliche spätere Erweiterung, kein Startpunkt.
+- **Smooth Scroll:** Lenis, Inertia bewusst etwas "schwer" eingestellt — soll sich wie eine schultergetragene Kamera anfühlen, die sich einpendelt, nicht wie schwereloses Scrollen.
+- **Chapter-Transitions:** kein separat gescriptetes Effekt-Element mehr (v1: "kurzer Static-Frame beim Section-Wechsel"). Stattdessen: an großen Kapitelgrenzen (Hero→Dispatch, Gallery→Studio) wird gezielt ein kurzer, authored Scrub-Spike ausgelöst — derselbe Mechanismus aus §4.1, nur bewusst getriggert statt nur an echte Scroll-Geschwindigkeit gekoppelt. Ein System, zwei Auslöser.
+- **Pin/Scrub pro Section:** "The lens" wird gepinnt, die Log-Einträge blättern wie Seiten einer Akte während des Scrollens durch, statt untereinander wegzufaden. "Environments/Gallery" wird zur horizontalen Filmrolle: vertikales Scrollen übersetzt sich in horizontale Bewegung durch die Clips, per Drag scrubbar — hier ist der Scrub-Mechanismus am buchstäblichsten, weil man wortwörtlich durch aufgenommenes Material spult.
+- **Kinetische Typografie:** Decode-/Scramble-in ausschließlich für Headlines auf H1/H2-Ebene (Mono-Font zykelt kurz durch Zeichen, bevor der finale Text steht — wie eine HUD-Anzeige, die eine Caption dekodiert). Explizit **nicht** auf Fließtext, Nav oder Labels — sonst wird aus einem Signature-Moment ein nerviges Dauerflackern.
+- **Boot-Sequenz:** "Signal wird aufgebaut" beim ersten Laden — kurzes Rauschen, Tracking-Bars ziehen durch, Bild rastet mit einem Fokus-Pull (unscharf → scharf) ein. Unter 1,5 s, überspringbar, unter reduced-motion entfällt sie komplett zugunsten des sofort stabilen Bilds.
+- **Apparat-Lifecycle (Bookend):** die Boot-Sequenz am Anfang und "SIGNAL END" im Footer spiegeln sich — Timestamp friert ein, Grain fällt auf 0, Cursor kehrt zum System-Cursor zurück, Sound (falls an) verstummt. Der Kamera-Apparat ist damit kein Dauerzustand, sondern hat einen sichtbaren Anfang und ein sichtbares Ende, wie eine echte Aufnahme.
+- **Reduced-Motion-Vertrag (verbindlich, kein Fallback zweiter Klasse):** kein Shader-Glitch (statischer CSS-Grain), kein Scramble-Text (finaler Text sofort), nativer Scroll statt Lenis, kein Pin/Scrub (Inhalt bleibt vollständig linear lesbar), nativer Cursor. Das Ergebnis ist die gleiche ruhige Optik, die die Studio-Section ohnehin site-wide als bewussten Kontrastpunkt nutzt (§6) — reduced-motion ist also keine Notlösung, sondern der ohnehin vorgesehene ruhige Zustand, dauerhaft aktiv.
 
-| Section | Inhalt | Ton |
+---
+
+## 6. Seitenstruktur & Section-Regie
+
+Weiterhin eine durchgehende Single-Page. Jede Zeile jetzt mit explizitem Beat (laut = voller Apparat + Scrub-Intensität, ruhig = bewusste Pause) statt einheitlichem HUD-Dauerzustand:
+
+| Section | Regie | Beat |
 |---|---|---|
-| **Hero** | Video-Loop + HUD + Headline + CTA (Play now / Watch trailer) | Direkter Einstieg, keine Erklärung nötig |
-| **The lens** | Warum Bodycam anders aussieht/spielt sich — Kernaussage aus der Originalseite als Basis, aber als kurze Log-artige Einträge statt Fließtext-Block | Sachlich, kurz |
-| **Modes** | Deathmatch, Gun Game, TDM, Body Bomb, Hardpoint, Zombies — als Einsatzbericht-Kacheln, nicht als generische Icon-Grid | Knapp, funktional |
-| **Environments / Gallery** | Screenshots + Clips großformatig, jeweils mit Fake-Timestamp/Sektor-Tag versehen — Wald, Urban-Verfall, Trainingsgelände als visuelle Reise | Atmosphärisch |
-| **Studio** | Die Reissad-Story (zwei französische Devs, 17 & 20) — bewusster Stilbruch: ruhiger, weniger HUD, mehr Raum. Kontrast macht diese Section besonders | Persönlich, warm |
-| **Community/Footer** | Discord, Steam, Social Links, Newsletter | Knapp |
+| **Hero** | Boot-Sequenz (§5), Scrub-Shader aktiv, Autofokus-Cursor, Decode-in-Headline | Laut — Einstieg |
+| **Acquire** | Steam-Widget, bewusst *unfilmed* | Ruhig — erste Pause vor Dispatch |
+| **Update/Dispatch** | Kommt per authored Scrub-Burst rein (§5); Countdown-Ziffern rollen wie ein mechanischer Bandzähler statt zu wechseln | Laut |
+| **The lens** | Gepinnt, Log-Einträge blättern im Scrub-Takt (§5) | Mittel |
+| **Modes** | Akkordeon unverändert — bewusst ohne Zusatzbewegung, damit man Zeit hat, Infos zu lesen | Ruhig |
+| **Environments/Gallery** | Horizontale Filmrolle, Drag-Scrub, höchste Shader-Intensität der Seite | Laut — zweiter Höhepunkt |
+| **Studio** | Kompletter Apparat aus: kein Grain, kein HUD, kein Cursor, kein Sound | Stille — größter Kontrast der Seite, macht die lauten Momente erst glaubwürdig |
+| **Footer** | Signal-End-Bookend (§5): Timestamp friert, Apparat fährt sichtbar herunter | Laut → aus |
 
-**Zu den Texten:** Für die tatsächlichen Copy-Texte (Feature-Beschreibungen, Studio-Absatz etc.) direkt von reissad.com übernehmen bzw. adaptieren, wie besprochen — das Original-Wording ist bereits eingeführt und akkurat. Dieses Konzeptdokument beschreibt nur Ton und Struktur, nicht den Wortlaut.
-
----
-
-## 6. Asset-Inventar
-
-**Screenshots** (`assets/screenshots/`, aus dem Chat-Upload):
-1. Wald, Zielen mit Schrotflinte, Rauch — kein sichtbarer Fisheye-Effekt
-2. Wald, Fisheye+CA-Rand sichtbar (Sprint-Zustand), zwei Teammitglieder im Vordergrund
-3. Urbaner Innenraum, Graffiti, warmes Licht — kein Fisheye
-4. Trainingsgelände, Nachladen mit Patrone in Nahaufnahme — kein Fisheye, aber sehr fotogen (Hand/Waffen-Detail)
-
-**Gameplay-Clips** (`assets/clips/`, 1080p/30fps H.264):
-1. `213035` — 17s, urbaner Verfall, Waffe im Vordergrund, ruhige Bewegung
-2. `213157` — 20s, verbrannter Wald, deutlicher Fisheye/CA-Rand, Teammitglieder sichtbar → **aktuell im Hero-Prototyp verwendet**
-3. `213312` — 10s, Wald mit Achterbahn-Silhouette im Hintergrund, kühle Farbgebung, Blutlache
-4. `213626` — 28s, Wald durch Astwerk gefilmt, Rauchwolke/Explosion im Hintergrund, starker Fisheye
-
-Alle vier Clips enthalten Originalton — für Web-Einbindung wird stummgeschaltet (Autoplay-Policy der Browser erlaubt ohnehin kein Audio-Autoplay).
+**Zu den Texten:** wie in v1 — reale Copy-Texte direkt von reissad.com übernehmen/adaptieren, dieses Dokument beschreibt Ton und Struktur, nicht den Wortlaut.
 
 ---
 
-## 7. Tech-Stack — offene Entscheidung
+## 7. Asset-Inventar
 
-Bewusst noch nicht festgelegt. Eckpunkte, die die Wahl beeinflussen sollten:
+Unverändert gegenüber v1 — weiterhin gültig:
 
-- **Reines HTML/CSS/JS:** am schnellsten für den Hero-Prototyp-Ansatz, kein Build-Step, gut wenn die Seite überschaubar bleibt (Single-Page)
-- **Astro:** wenn mehrere Unterseiten/Content-Collections absehbar sind (z. B. echte News-Sektion später) — bleibt trotzdem statisch/leichtgewichtig
-- **React:** nur sinnvoll, wenn viel State/Interaktivität dazukommt (z. B. Option B/C aus 3.4 mit komplexerer 3D-Szene) — für eine primär visuelle Single-Page eher Overhead
-- **3D:** in jedem Fall Three.js (ggf. über react-three-fiber, falls React gewählt wird)
+**Screenshots** (`assets/screenshots/`): Wald/Schrotflinte/Rauch (kein Fisheye) · Wald mit sichtbarem Fisheye+CA-Rand (Sprint) · urbaner Innenraum, Graffiti, warmes Licht · Trainingsgelände, Nachladen in Nahaufnahme.
 
-→ Empfehlung: mit reinem HTML/CSS/JS + Three.js für den 3D-Moment starten (wie im Prototyp), auf Astro wechseln, falls der Umfang wächst.
+**Gameplay-Clips** (`assets/clips/`, 1080p/30fps H.264): `213035` (17s, urban) · `213157` (20s, Wald, deutlicher Fisheye, aktuell im Hero) · `213312` (10s, Wald, Blutlache) · `213626` (28s, Wald, starker Fisheye, Explosion).
 
----
-
-## 8. Referenz-Prototyp
-
-`prototype.html` zeigt den Hero-Ansatz bereits umgesetzt: Video-Loop, HUD-Overlay, Vignette/CA-Rand, Grain, Typografie. Als Ausgangspunkt für weitere Sections verwenden, nicht als fertigen Code kopieren — Selektoren/Struktur sind noch Wegwerf-Qualität.
+Für die Filmrollen-Gallery (§5, §6) wird mehr Rohmaterial hilfreich sein als für die alte gestapelte Grid-Ansicht — mittelfristig zusätzliche Clips/Screens einplanen, kein Blocker für den Start.
 
 ---
 
-## 9. Leitfrage für jede weitere Entscheidung
+## 8. Qualitäts-Budget & Leitplanken
 
-Bei jeder neuen Section, jedem neuen Effekt: **Trägt das zum "das ist eine laufende Aufnahme"-Gefühl bei, oder ist es nur Dekoration, die zufällig auch bei jeder anderen Gaming-Seite funktionieren würde?** Wenn Zweiteres — raus damit.
+- **Performance:** 60 fps auf Mid-Range-Hardware als Ziel. WebGL-Layer per Feature-Detection — fehlt Support, greift der CSS-Fallback (§4.1) statt Fehler/Absturz.
+- **A11y:** reduced-motion ist ein vollständiger Vertrag (§5), kein nachträglicher Kompromiss. Fokus-Sichtbarkeit bleibt trotz Custom-Cursor erhalten — echter `:focus-visible`-Ring läuft parallel, wird vom Cursor nie ersetzt.
+- **Restraint-Checkliste vor jedem neuen Effekt:**
+  1. Lässt er sich auf den Scrub-Mechanismus zurückführen (§4.1) — oder ist er ein isoliertes Extra?
+  2. Verschwindet er sauber unter reduced-motion, ohne dass Inhalt verloren geht?
+  3. Ergibt die Section auch im Fallback-Zustand (kein WebGL, kein Sound) noch Sinn?
+
+---
+
+## 9. Tech-Stack — entschieden
+
+War in v1 bewusst offen. Jetzt final, weil der Umfang (Shader, Scrub-Timelines, Pin-Sections) eine Richtung braucht, um nicht in Ad-hoc-Code zu zerfallen:
+
+- **Vite + Vanilla JS** — kein Framework, die Seite bleibt eine primär visuelle Single-Page ohne nennenswerten App-State
+- **Lenis** — Smooth Scroll, Basis für alles Weitere
+- **GSAP + ScrollTrigger** — treibt Pin/Scrub-Timelines *und* die Shader-Uniforms aus §4.1
+- **OGL** statt Three.js — es gibt kein 3D-Geometrie-Objekt mehr zu rendern (§4.3), nur einen Fullscreen-Shader-Quad. Three.js wäre hier reiner Overhead für Features, die nicht gebraucht werden.
+- **Web Audio API nativ** — kein zusätzliches Sound-Lib nötig für Loop + Gain-Swell (§4.4)
+
+Damit entfällt auch der v1-Plan für ein GLB-Waffenmodell vollständig (§4.3).
+
+**Empfohlene Umsetzungsreihenfolge** (Risiko/Wirkung-Verhältnis, keine Big-Bang-Migration):
+1. Lenis + Custom-Cursor als Fundament (geringes Risiko, sofort spürbar)
+2. Scrub-Shader zuerst nur im Hero beweisen, bevor er seitenweit ausgerollt wird
+3. Shader-System auf Chapter-Transitions + Gallery-Filmrolle ausweiten
+4. Pin/Scrub für "The lens"
+5. Sound-System zuletzt (reines Polish-Layer, keine Abhängigkeit für den Rest)
+
+---
+
+## 10. Referenz-Prototyp
+
+`prototype.html` zeigt weiterhin den v1-Hero-Ansatz (Video-Loop, HUD, CSS-Vignette, Grain, Typografie) — jetzt offiziell als **Fallback-Referenz für §4.1** (kein WebGL/reduced-motion), nicht mehr als Zielbild für den Live-Zustand mit Shader.
+
+---
+
+## 11. Leitfrage für jede weitere Entscheidung
+
+Nicht mehr nur "fühlt sich das an wie eine laufende Aufnahme" — schärfer:
+
+**Lässt sich der Effekt auf die Scrub-Geschwindigkeit (§4.1) zurückführen, oder ist er nur eine weitere isolierte Animation, die zufällig auch gut aussieht?**
+
+Wenn Zweiteres: entweder in den Scrub-Mechanismus integrieren, oder streichen.

@@ -1,49 +1,83 @@
+/* Environments/Gallery als horizontale Filmrolle (CONCEPT.md §5/§6):
+   vertikales Scrollen treibt horizontale Bewegung durch die Clips —
+   zweiter Höhepunkt der Seite, gepinnt via gallery-reel.js/ScrollTrigger. */
 .gallery {
   background: var(--color-base);
 }
 
-.gallery-inner {
-  max-width: 1200px;
-  padding: 140px 32px;
-}
-
-.gallery-inner h2 {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 34px;
-  color: var(--text-primary);
-  margin-bottom: 48px;
-}
-
-.gallery-grid {
+.gallery-pin {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 64px;
+  justify-content: center;
+  padding: 0 32px;
+  overflow: hidden;
 }
 
-/* Volle Bildbreite, kein Card-Grid (CONCEPT.md §2 Layout) — jede
-   Aufnahme bekommt denselben Fisheye-Vignette-Rand wie der Hero
-   (CONCEPT.md §3.1). */
+.gallery-pin h2 {
+  margin-bottom: 8px;
+  max-width: none;
+}
+
+.gallery-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.gallery-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  will-change: transform;
+}
+
 /* Fixes Seitenverhältnis statt height:auto — verhindert Cumulative
-   Layout Shift beim Nachladen der (lazy) Bilder/Videos, Platz steht
-   sofort fest. */
+   Layout Shift beim Nachladen der (lazy) Bilder/Videos. */
 .media-frame {
   position: relative;
   overflow: hidden;
   background: #000;
+  width: min(72vw, 920px);
+  flex-shrink: 0;
   aspect-ratio: 16 / 9;
 }
 
 .media-frame img,
-.media-frame video {
+.media-frame video,
+.media-frame canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.media-frame canvas {
+  display: none;
+}
+
+/* Solange der Shader läuft, bleibt die rohe Quelle unsichtbar (Canvas
+   zeigt die geshadete Version) — ohne WebGL/unter reduced-motion greift
+   der v1-CSS-Fallback (Filter + Vignette). */
+.media-frame.is-shaded img,
+.media-frame.is-shaded video {
+  opacity: 0;
+}
+
+.media-frame.is-shaded canvas {
+  display: block;
+}
+
+.media-frame.is-fallback img,
+.media-frame.is-fallback video {
   filter: grayscale(0.1) contrast(1.05) brightness(0.92);
 }
 
-.media-frame::after {
+.media-frame.is-fallback::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -71,4 +105,23 @@
   padding: 3px 8px;
   background: rgba(8, 9, 10, 0.4);
   backdrop-filter: blur(3px);
+}
+
+/* Reduced-motion (CONCEPT.md §5-Vertrag): kein Pin/Scrub — die Filmrolle
+   wird zum ganz normalen, linear lesbaren, umbrechenden Grid. */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-pin {
+    height: auto;
+    overflow: visible;
+    padding: 140px 32px;
+  }
+
+  .gallery-track {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .media-frame {
+    width: min(100%, 640px);
+  }
 }
