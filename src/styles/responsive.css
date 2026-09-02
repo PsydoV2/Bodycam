@@ -6,10 +6,13 @@
 :root {
   --gutter: clamp(20px, 4vw, 32px);
   --section-pad: clamp(72px, 12vw, 140px);
+  /* Abstand zum Viewport-Rand: mindestens der Gutter, auf breiten Screens
+     so viel, dass der Inhalt als 1200px-Block zentriert steht. */
+  --container-inset: max(var(--gutter), calc((100vw - 1200px) / 2));
 }
 
 .section-inner {
-  padding: var(--section-pad) var(--gutter);
+  padding: var(--section-pad) var(--container-inset);
 }
 
 main h2 {
@@ -23,7 +26,7 @@ main h2 {
 }
 
 .hero-content {
-  padding: 0 var(--gutter) clamp(48px, 8vw, 64px);
+  padding: 0 var(--container-inset) clamp(48px, 8vw, 64px);
 }
 
 .hero h1 {
@@ -50,7 +53,7 @@ main h2 {
 .gallery-pin {
   height: 100vh;
   height: 100dvh;
-  padding: 0 var(--gutter);
+  padding: 0 var(--container-inset);
 }
 
 @media (max-width: 640px) {

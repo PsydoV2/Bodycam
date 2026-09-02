@@ -72,6 +72,8 @@ Unverändert aus dem Bildmaterial abgeleitet (verbrannter Wald, Sandfarben Train
 
 ### Layout
 - Linksbündig, große Ruhe-Flächen. Kein zentrierter Hero-Text.
+- **Sichtungsplatz (Korrektur nach drittem Rollout):** Linksbündig hieß in der Praxis 900px Text vor 1000px Leere. Jetzt steht der Inhalt als 1200px-Block zentriert, der Text darin bleibt linksbündig, und die Textsections (Update, Lens, Modes) haben rechts ein sticky Feed-Panel: links das Protokoll, rechts das Bild dazu, wie an einem Auswertungsplatz für Bodycam-Material. Der Feed wechselt per Hover (Update, Modes) oder beim Scrollen (Lens), jeder Wechsel ist ein Kanalwechsel mit Scrub-Burst (§5). Darunter Rand-Notizen im Akten-Stil (Sektor, Band-Bereich, Quelle). Trennlinien laufen full-bleed über die Viewport-Breite, damit die Fläche rechts strukturiert ist, ohne gefüllt zu werden. Hero-Text und Filmrolle stehen auf derselben Kante wie die Sections.
+- **Hintergrund:** bleibt Schwarz, keine Textur. Was die gefilmten Sections von den unfilmed-Sections unterscheidet, kommt aus dem Overlay-Shader (§4.1): eine feste Vignette (die Linse liegt über allem) und niederfrequentes Sensorrauschen, das in Ruhe kaum sichtbar ist und beim Scrub deutlicher wird — ein Sensor, der in einen dunklen Raum schaut. Acquire und Studio sind flach. Erst dieser Kontrast macht den Apparat als Zustand spürbar; das Rauschen der Originalseite wäre nur Dekoration.
 - Volle Bildbreite für alle Screenshots/Clips — nichts in kleine Cards gequetscht
 - **Neu — Apparat-Lifecycle:** Sections sind entweder *gefilmt* (HUD, Grain/Scrub-Shader, Autofokus-Cursor aktiv) oder bewusst *unfilmed* (kompletter Apparat aus — Studio-Section, siehe §6). Das war in v1 nicht explizit; jetzt ist es eine Regel pro Section, keine Ausnahme.
 

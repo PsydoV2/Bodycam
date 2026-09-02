@@ -27,7 +27,7 @@ import { initSignalEnd } from './motion/signal-end.js';
 import { initCountdown } from './motion/countdown.js';
 import { initChapterTransitions } from './motion/chapter-transitions.js';
 import { initSound } from './motion/sound.js';
-import { initModesFeed } from './motion/modes-feed.js';
+import { initFeedPanels } from './motion/feed-panel.js';
 import { initHudAlive } from './motion/hud-alive.js';
 
 const reducedMotion = prefersReducedMotion;
@@ -61,7 +61,7 @@ suppressor.watch(document.querySelector('#gallery'), 'gallery');
 // mehr zu beachten.
 initHero({ reducedMotion });
 const gallery = initGalleryReel({ reducedMotion, cursor, sound });
-initModesFeed({ reducedMotion }); // Preview-Feed neben der Mode-Liste
+initFeedPanels({ reducedMotion }); // Sichtungsplatz: Feed rechts neben Update/Lens/Modes
 initUnfilmed({ cursor, suppressor, sound }); // Acquire + Studio (§6)
 initSignalEnd({ cursor, suppressor, sound, hud, reducedMotion }); // Footer-Bookend (§5)
 initCountdown({ reducedMotion }); // Dispatch-Bandzähler (§6)

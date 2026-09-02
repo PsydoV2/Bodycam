@@ -13,11 +13,22 @@
 }
 
 .log-entry {
+  position: relative;
   display: flex;
   gap: 24px;
   align-items: baseline;
-  border-top: 1px solid var(--line);
   padding-top: 20px;
+}
+
+/* Trennlinie full-bleed (Muster wie .mode-row). */
+.log-entry::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100vw;
+  right: -100vw;
+  border-top: 1px solid var(--line);
+  pointer-events: none;
 }
 
 .log-index {

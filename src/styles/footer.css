@@ -6,7 +6,21 @@
 .site-footer .section-inner {
   padding-top: 96px;
   padding-bottom: 64px;
-  max-width: 640px;
+}
+
+/* Zwei Spalten ab 900px: links Kontakt/Newsletter, rechts Session-Log und
+   Kleingedrucktes — sonst stünde auch hier alles links vor leerer Fläche. */
+@media (min-width: 900px) {
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+    align-items: end;
+  }
+
+  .footer-aside .session-log {
+    margin-bottom: 40px;
+  }
 }
 
 .site-footer h2 {

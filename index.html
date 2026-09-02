@@ -110,8 +110,9 @@
         </div>
       </section>
 
-      <section class="update" id="update" data-sector="INCOMING TRANSMISSION">
-        <div class="section-inner">
+      <section class="update" id="update" data-sector="INCOMING TRANSMISSION" data-feed-section data-feed-trigger="hover">
+        <div class="section-inner feed-layout">
+          <div class="feed-main">
           <div class="update-tag">DISPATCH_08 // LOCKED &amp; LOADED</div>
 
           <div class="update-head">
@@ -139,7 +140,7 @@
           </p>
 
           <ul class="mode-list update-list">
-            <li class="mode-row" data-reveal style="--reveal-i: 0">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%283%29.webp" style="--reveal-i: 0">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-01">
                 <span class="mode-id">SYS_01</span>
                 <span class="mode-name">Procedural animations</span>
@@ -152,7 +153,7 @@
                 </p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 1">
+            <li class="mode-row" data-reveal data-feed="/clips/clip-urban-poster.webp" style="--reveal-i: 1">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-02">
                 <span class="mode-id">SYS_02</span>
                 <span class="mode-name">Loadout &amp; customization</span>
@@ -165,7 +166,7 @@
                 </p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 2">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%282%29.webp" style="--reveal-i: 2">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-03">
                 <span class="mode-id">SYS_03</span>
                 <span class="mode-name">Tactical tablet</span>
@@ -178,7 +179,7 @@
                 </p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 3">
+            <li class="mode-row" data-reveal data-feed="/clips/clip-outskirts-poster.webp" style="--reveal-i: 3">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-04">
                 <span class="mode-id">SYS_04</span>
                 <span class="mode-name">New tactical gear</span>
@@ -191,7 +192,7 @@
                 </p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 4">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview.webp" style="--reveal-i: 4">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-05">
                 <span class="mode-id">SYS_05</span>
                 <span class="mode-name">Audio rebuilt</span>
@@ -201,7 +202,7 @@
                 <p>Sound design rebuilt end to end — reverb, occlusion and footsteps get sharper and more consequential.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 5">
+            <li class="mode-row" data-reveal data-feed="/clips/clip-explosion-poster.webp" style="--reveal-i: 5">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-06">
                 <span class="mode-id">SYS_06</span>
                 <span class="mode-name">Trenches</span>
@@ -211,7 +212,7 @@
                 <p>A new map, and the clearest look yet at where Bodycam's visuals are headed.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 6">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%281%29.webp" style="--reveal-i: 6">
               <button class="mode-header" aria-expanded="false" aria-controls="update-brief-07">
                 <span class="mode-id">SYS_07</span>
                 <span class="mode-name">Optimization &amp; QoL</span>
@@ -248,44 +249,77 @@
               >official Discord</a
             >.
           </p>
+          </div>
+
+          <!-- Sichtungsplatz (feed-panel.js): Monitor rechts neben dem
+               Protokoll, ab 1100px sichtbar, rein dekorativ. -->
+          <aside class="section-feed" aria-hidden="true">
+            <div class="section-feed-frame">
+              <img src="/screenshots/preview.webp" alt="" />
+              <canvas></canvas>
+              <span class="section-feed-caption">SYS_01 // PROCEDURAL ANIMATIONS</span>
+            </div>
+            <dl class="section-feed-meta">
+              <div><dt>SECTOR</dt><dd data-meta="sector">—</dd></div>
+              <div><dt>TAPE</dt><dd data-meta="tape">--:--:-- → --:--:--</dd></div>
+              <div><dt>SRC</dt><dd data-meta="src">—</dd></div>
+            </dl>
+          </aside>
         </div>
       </section>
 
-      <section class="lens" id="lens" data-sector="FIELD LOG">
-        <div class="section-inner">
+      <section class="lens" id="lens" data-sector="FIELD LOG" data-feed-section data-feed-trigger="scroll">
+        <div class="section-inner feed-layout">
+          <div class="feed-main">
           <h2 data-decode>The lens</h2>
           <ol class="log-list">
-            <li class="log-entry" data-reveal style="--reveal-i: 0">
+            <li class="log-entry" data-reveal data-feed="/screenshots/preview.webp" data-feed-caption="LOG_01 // PERSPECTIVE" style="--reveal-i: 0">
               <span class="log-index">LOG_01</span>
               <p>
                 Body-camera perspective. No crosshair floating outside your view — you see corners the way corners
                 actually get read.
               </p>
             </li>
-            <li class="log-entry" data-reveal style="--reveal-i: 1">
+            <li class="log-entry" data-reveal data-feed="/screenshots/preview%20%282%29.webp" data-feed-caption="LOG_02 // LIGHTING" style="--reveal-i: 1">
               <span class="log-index">LOG_02</span>
               <p>
                 Photoreal lighting in Unreal Engine 5. Muzzle flash blinds. Shadows hide. Every surface reacts the
                 way it should.
               </p>
             </li>
-            <li class="log-entry" data-reveal style="--reveal-i: 2">
+            <li class="log-entry" data-reveal data-feed="/screenshots/preview%20%283%29.webp" data-feed-caption="LOG_03 // GUNPLAY" style="--reveal-i: 2">
               <span class="log-index">LOG_03</span>
               <p>Grounded gunplay. Recoil is real, timing is real — discipline decides who walks away.</p>
             </li>
-            <li class="log-entry" data-reveal style="--reveal-i: 3">
+            <li class="log-entry" data-reveal data-feed="/screenshots/preview%20%281%29.webp" data-feed-caption="LOG_04 // AUDIO" style="--reveal-i: 3">
               <span class="log-index">LOG_04</span>
               <p>
                 Audio with consequence. Reverb, occlusion, footsteps that give you away — or give the enemy away.
               </p>
             </li>
           </ol>
+          </div>
+
+          <!-- Sichtungsplatz (feed-panel.js): Monitor rechts neben dem
+               Protokoll, ab 1100px sichtbar, rein dekorativ. -->
+          <aside class="section-feed" aria-hidden="true">
+            <div class="section-feed-frame">
+              <img src="/screenshots/preview.webp" alt="" />
+              <canvas></canvas>
+              <span class="section-feed-caption">LOG_01 // PERSPECTIVE</span>
+            </div>
+            <dl class="section-feed-meta">
+              <div><dt>SECTOR</dt><dd data-meta="sector">—</dd></div>
+              <div><dt>TAPE</dt><dd data-meta="tape">--:--:-- → --:--:--</dd></div>
+              <div><dt>SRC</dt><dd data-meta="src">—</dd></div>
+            </dl>
+          </aside>
         </div>
       </section>
 
-      <section class="modes" id="modes" data-sector="TRAINING GROUND">
-        <div class="section-inner modes-layout">
-          <div class="modes-main">
+      <section class="modes" id="modes" data-sector="TRAINING GROUND" data-feed-section data-feed-trigger="hover">
+        <div class="section-inner feed-layout">
+          <div class="feed-main">
           <h2 data-decode>Modes in early access</h2>
           <ul class="mode-list">
             <li class="mode-row" data-reveal data-feed="/screenshots/preview.webp" style="--reveal-i: 0">
@@ -351,16 +385,19 @@
           </ul>
           </div>
 
-          <!-- Preview-Feed (modes-feed.js): schaltet beim Hover auf ein
-               Standbild des Modus — Kanalwechsel mit Scrub-Burst. Nur ab
-               1100px sichtbar, rein dekorativ. -->
-          <aside class="modes-feed" aria-hidden="true">
-            <div class="modes-feed-frame">
+          <!-- Sichtungsplatz (feed-panel.js): Monitor rechts neben dem
+               Protokoll, ab 1100px sichtbar, rein dekorativ. -->
+          <aside class="section-feed" aria-hidden="true">
+            <div class="section-feed-frame">
               <img src="/screenshots/preview.webp" alt="" />
               <canvas></canvas>
-              <span class="modes-feed-caption">MODE_01 // DEATHMATCH</span>
+              <span class="section-feed-caption">MODE_01 // DEATHMATCH</span>
             </div>
-            <p class="modes-feed-hint">PREVIEW FEED · HOVER A MODE</p>
+            <dl class="section-feed-meta">
+              <div><dt>SECTOR</dt><dd data-meta="sector">—</dd></div>
+              <div><dt>TAPE</dt><dd data-meta="tape">--:--:-- → --:--:--</dd></div>
+              <div><dt>SRC</dt><dd data-meta="src">—</dd></div>
+            </dl>
           </aside>
         </div>
       </section>
@@ -431,7 +468,8 @@
       </section>
 
       <footer class="site-footer" id="footer" data-sector="SIGNAL END">
-        <div class="section-inner">
+        <div class="section-inner footer-grid">
+          <div class="footer-main">
           <h2 data-decode>Stay in the loop</h2>
 
           <ul class="social-list">
@@ -499,7 +537,9 @@
             </div>
             <p class="newsletter-note" id="newsletter-note" role="status"></p>
           </form>
+          </div>
 
+          <div class="footer-aside">
           <!-- Session-Log (hud-alive.js): wird beim SIGNAL END befüllt —
                rein lokal berechnet, nichts verlässt die Seite. -->
           <dl class="session-log" id="session-log" aria-label="Session log">
@@ -517,6 +557,7 @@
             Unofficial fan/portfolio redesign. Not affiliated with Reissad Studio. <em>Bodycam</em> and all related
             assets belong to their respective owners.
           </p>
+          </div>
         </div>
       </footer>
     </main>

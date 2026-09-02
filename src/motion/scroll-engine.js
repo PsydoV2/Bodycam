@@ -50,6 +50,12 @@ export function triggerBurst(strength = 0.85, durationMs = 550) {
   burstUntil = performance.now() + durationMs;
 }
 
+/** Timecode (Bandsekunden) zu einer Scroll-Position — dieselbe Abbildung,
+ *  die auch das HUD nutzt (Feed-Rand-Notizen, feed-panel.js). */
+export function timecodeAt(scrollY) {
+  return BASE_SECONDS + Math.max(0, scrollY) / PX_PER_SECOND;
+}
+
 /** Speist rohe Velocity von außen ein — Drag-Scrub in der Gallery (§5/§6),
  *  damit Ziehen an der Filmrolle denselben Mechanismus füttert wie Scrollen. */
 export function pushVelocity(value) {
