@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08090a" />
+    <meta
+      name="description"
+      content="Unofficial fan redesign of the Bodycam website — a body-camera-perspective tactical shooter by Reissad Studio. Scroll to scrub the feed."
+    />
     <title>Bodycam</title>
     <script>
       // Synchron, vor dem ersten Paint: schaltet die Scroll-Reveal-Zustände
@@ -13,6 +18,13 @@
       // in boot.js rastet ihn ein. Unter reduced-motion entfällt das.
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('is-booting');
+        // Watchdog: schlägt das Modul-Bundle fehl (Netz, alter Browser),
+        // darf die Seite nicht für immer hinter Boot-Screen + Blur hängen.
+        setTimeout(function () {
+          var boot = document.getElementById('boot');
+          if (boot) boot.remove();
+          document.documentElement.classList.remove('is-booting');
+        }, 4000);
       }
     </script>
   </head>
@@ -50,7 +62,7 @@
 
         <div class="hero-content">
           <div class="eyebrow">BODYCAM · EARLY ACCESS</div>
-          <h1 data-decode>See combat through the lens.</h1>
+          <h1 data-decode data-decode-manual>See combat through the lens.</h1>
           <p class="sub">
             Every angle you hold, every callout you make, every bullet you send matters. Miss a check and you feel
             it.
@@ -320,7 +332,7 @@
           <p class="gallery-hint">DRAG OR SCROLL TO ADVANCE THE REEL</p>
           <div class="gallery-track">
             <figure class="media-frame">
-              <img src="/screenshots/preview.webp" alt="Aiming a shotgun through smoke in a burned forest" loading="lazy" />
+              <img src="/screenshots/preview.webp" alt="Aiming a shotgun through smoke in a burned forest" />
               <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:03:41</figcaption>
             </figure>
@@ -330,12 +342,12 @@
               <figcaption>URBAN SECTOR // 00:07:12</figcaption>
             </figure>
             <figure class="media-frame">
-              <img src="/screenshots/preview%20%282%29.webp" alt="Graffiti-covered urban interior corridor" loading="lazy" />
+              <img src="/screenshots/preview%20%282%29.webp" alt="Graffiti-covered urban interior corridor" />
               <canvas aria-hidden="true"></canvas>
               <figcaption>URBAN SECTOR // 00:07:58</figcaption>
             </figure>
             <figure class="media-frame">
-              <img src="/screenshots/preview%20%281%29.webp" alt="Sprinting through a burned forest with two teammates" loading="lazy" />
+              <img src="/screenshots/preview%20%281%29.webp" alt="Sprinting through a burned forest with two teammates" />
               <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:04:58</figcaption>
             </figure>
@@ -345,7 +357,7 @@
               <figcaption>OUTSKIRTS // 00:09:03</figcaption>
             </figure>
             <figure class="media-frame">
-              <img src="/screenshots/preview%20%283%29.webp" alt="Reloading a shotgun in close-up at the training ground" loading="lazy" />
+              <img src="/screenshots/preview%20%283%29.webp" alt="Reloading a shotgun in close-up at the training ground" />
               <canvas aria-hidden="true"></canvas>
               <figcaption>TRAINING GROUND // 00:00:52</figcaption>
             </figure>
@@ -444,8 +456,8 @@
 
           <div class="footer-bottom">
             <a class="inline-link" href="https://reissad.com/" target="_blank" rel="noopener">Official site ↗</a>
-            <a class="inline-link" href="/legal-notice.html">Legal notice</a>
-            <a class="inline-link" href="/personal-data.html">Personal data</a>
+            <a class="inline-link" href="https://reissad.com/LegalNotice" target="_blank" rel="noopener">Legal notice ↗</a>
+            <a class="inline-link" href="https://reissad.com/personaldata" target="_blank" rel="noopener">Personal data ↗</a>
           </div>
           <p class="footer-disclaimer">
             Unofficial fan/portfolio redesign. Not affiliated with Reissad Studio. <em>Bodycam</em> and all related

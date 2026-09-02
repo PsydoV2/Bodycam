@@ -45,13 +45,50 @@
   margin-right: 0.6ch;
 }
 
+/* REC-Punkt: blinkt wie die Aufnahme-LED einer echten Kamera — harter
+   Ein/Aus-Rhythmus plus ein kurzer Glow-Ring, damit er auch auf hellem
+   Bildmaterial und ohne Hintergrundkasten sofort als "läuft" lesbar ist. */
 .hud-rec .dot {
-  width: 7px;
-  height: 7px;
+  position: relative;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  margin-right: 7px;
-  animation: pulse 1.6s infinite ease-in-out;
+  margin-right: 8px;
+  box-shadow: 0 0 6px rgba(209, 0, 0, 0.8);
+  animation: rec-blink 1.2s infinite ease-in-out;
+}
+
+.hud-rec .dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(209, 0, 0, 0.6);
+  animation: rec-ring 1.2s infinite ease-out;
+}
+
+@keyframes rec-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes rec-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 
 @keyframes pulse {
@@ -97,11 +134,7 @@
   color: var(--text-muted);
 }
 
-.is-signal-end .hud-rec-label {
-  margin-right: 0.6ch;
-}
-
-.hud-rec .dot {
+.is-signal-end .hud-rec .dot {
   animation: none;
   background: var(--text-muted);
   opacity: 0.5;

@@ -43,7 +43,10 @@ export function initCursor({ reducedMotion }) {
     }
   });
 
-  window.addEventListener('mouseleave', () => {
+  // mouseleave feuert auf Elementen, nicht auf window — auf window
+  // registriert blieb der Rahmen am Fensterrand stehen, wenn die Maus die
+  // Seite verließ.
+  document.documentElement.addEventListener('mouseleave', () => {
     visible = false;
     root.classList.remove('is-visible');
   });

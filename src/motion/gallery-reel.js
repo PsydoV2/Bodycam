@@ -25,6 +25,13 @@ export function initGalleryReel({ reducedMotion, cursor }) {
     const canvas = item.querySelector('canvas');
     if (!source || !canvas) return;
 
+    // Videos laden erst beim Hereinfahren (preload="none", §8) — bis der
+    // erste Frame da ist, zeigt das Frame "ACQUIRING FEED" statt Schwarz.
+    if (source.tagName === 'VIDEO') {
+      item.classList.add('is-loading');
+      source.addEventListener('loadeddata', () => item.classList.remove('is-loading'), { once: true });
+    }
+
     if (reducedMotion) {
       // Reduced-motion: kein Shader, statischer CSS-Fallback-Look reicht
       // (kein Pin/Scrub sowieso, siehe unten). Kein autoplay-Attribut mehr
@@ -89,7 +96,12 @@ export function initGalleryReel({ reducedMotion, cursor }) {
   }
 
   function getScrollDistance() {
-    return Math.max(0, track.scrollWidth - pin.clientWidth);
+    // clientWidth enthält das horizontale Padding des Pins — ohne Korrektur
+    // endet die Rolle 32px hinter dem rechten Rand und das letzte Frame
+    // bleibt angeschnitten.
+    const style = getComputedStyle(pin);
+    const inset = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    return Math.max(0, track.scrollWidth + inset - pin.clientWidth);
   }
 
   const tween = gsap.to(track, { x: () => -getScrollDistance(), ease: 'none' });

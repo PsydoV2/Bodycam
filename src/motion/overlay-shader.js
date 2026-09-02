@@ -132,6 +132,17 @@ export class OverlayShader {
 
     this._suppressCurrent += (this.suppress - this._suppressCurrent) * 0.12;
 
+    // Performance-Budget (CONCEPT.md §8): im Ruhezustand reicht Grain mit
+    // halber Bildrate (30 fps liest sich sogar filmischer) — nur während
+    // eines Scrubs oder einer Dämpfungs-Transition rendert jeder Frame.
+    const velocity = this.getVelocity();
+    const settling = Math.abs(this.suppress - this._suppressCurrent) > 0.01;
+    this._frame = (this._frame || 0) + 1;
+    if (velocity < 0.02 && !settling && this._frame % 2 === 0) {
+      this._raf = requestAnimationFrame(this._loop);
+      return;
+    }
+
     // Performance-Budget (CONCEPT.md §8): bei voller Dämpfung (Studio-
     // Section) lohnt sich der volle Fullscreen-Pass nicht — die Textur
     // bliebe ohnehin unsichtbar, also einfach leeren statt neu zu shaden.
@@ -140,7 +151,7 @@ export class OverlayShader {
     } else {
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1f(this.uTime, t);
-      gl.uniform1f(this.uVelocity, this.getVelocity());
+      gl.uniform1f(this.uVelocity, velocity);
       gl.uniform1f(this.uSuppress, this._suppressCurrent);
       gl.uniform2f(this.uResolution, this.canvas.width, this.canvas.height);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
