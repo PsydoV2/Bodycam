@@ -88,6 +88,9 @@ Ein Fullscreen-WebGL-Shader-Layer (siehe §9 — rohes WebGL, kein Three.js) lie
 - **Horizontale Tracking-Bars** — kurze, harte Störzeilen, wie beim Spulen eines Bandes
 - **HUD-Timestamp** — läuft nicht mehr als separate, vom Scroll unabhängige Uhr (das war v1s größte Schwäche: eine Fake-Uhr, die nichts mit der Seite zu tun hat). Er *ist* jetzt die Scroll-Position, gemappt auf einen Timecode, und springt beim schnellen Scrub sichtbar statt zu ticken — wie ein Bandzähler beim Vorspulen.
 
+- **Frame-Hold** (seit dem zweiten Rollout) — ein echtes Band zeigt beim Spulen nicht nur Rauschen, sondern zeilenweise Reste des vorherigen Bilds. Der Shader hält eine zweite Textur, die nur alle paar Frames nachgezogen wird; bei hoher Velocity mischen sich Zeilenbänder aus diesem veralteten Frame horizontal versetzt ins Live-Bild.
+- **Das Video spult selbst** — `playbackRate` hängt an derselben Velocity (1× in Ruhe, bis 4× beim Scrub). Artefakte und Bewegung im Bild haben damit dieselbe Ursache; das ist die Leitidee aus §1 ohne Umweg.
+
 Bei Stillstand: sauberes, ruhiges Bild, keine Artefakte — die Disziplin aus v1 bleibt, nur ist der ruhige Zustand jetzt der *Default*, kein Dauerzustand ohne Gegenpol.
 
 **Fallback:** kein WebGL verfügbar oder `prefers-reduced-motion` → statischer CSS-Vignette+Grain-Zustand wie in v1. Der bestehende `prototyp/prototype.html`-Ansatz wird dadurch nicht obsolet, sondern zur offiziellen Fallback-Referenz (§10).
@@ -108,7 +111,9 @@ v1 diskutierte drei 3D-Optionen und empfahl einen schwebenden, beleuchteten Waff
 
 ### 4.4 Sound (opt-in, nie automatisch hörbar)
 
-Sehr leises Ambient-Bett (Handschuh-Rascheln/Funkrauschen), an-/ausschaltbar über einen HUD-Chip ("AUDIO", gleiche Optik wie REC/BATT). Rauschen schwillt bei schnellem Scrub kurz an — gleiche Uniform wie §4.1, kein separates System. Autofokus-Snap (§4.2) bekommt ein sehr leises Bestätigungs-Ticken. Ohne explizites Antippen bleibt die Seite stumm — sowohl aus Browser-Policy-Gründen als auch, weil unaufgeforderter Sound auf Landingpages fast immer nervt statt beeindruckt.
+Sehr leises Ambient-Bett (Handschuh-Rascheln/Funkrauschen), an-/ausschaltbar über einen HUD-Chip ("AUDIO", gleiche Optik wie REC/BATT). Rauschen schwillt bei schnellem Scrub kurz an — gleiche Uniform wie §4.1, kein separates System. Autofokus-Snap (§4.2) bekommt ein sehr leises Bestätigungs-Ticken, das Ziehen an der Filmrolle (§6) einen tiefen Transport-Motor, dessen Tonhöhe der Velocity folgt. Ohne explizites Antippen bleibt die Seite stumm — sowohl aus Browser-Policy-Gründen als auch, weil unaufgeforderter Sound auf Landingpages fast immer nervt statt beeindruckt. In "unfilmed"-Sections und nach SIGNAL END ist der Ton aus, wie der Rest des Apparats.
+
+**Umgesetzt** (`src/motion/sound.js`): Der AudioContext entsteht erst beim Klick auf den Chip — vorher existiert kein Audio-Graph, es kann also auch nichts versehentlich hörbar werden.
 
 ---
 
@@ -132,12 +137,12 @@ Weiterhin eine durchgehende Single-Page. Jede Zeile jetzt mit explizitem Beat (l
 |---|---|---|
 | **Hero** | Boot-Sequenz (§5), Scrub-Shader aktiv, Autofokus-Cursor, Decode-in-Headline | Laut — Einstieg |
 | **Acquire** | Steam-Widget, bewusst *unfilmed* | Ruhig — erste Pause vor Dispatch |
-| **Update/Dispatch** | Kommt per authored Scrub-Burst rein (§5); Countdown-Ziffern rollen wie ein mechanischer Bandzähler statt zu wechseln | Laut |
+| **Update/Dispatch** | Kommt per authored Scrub-Burst rein (§5); Countdown-Ziffern rollen wie ein mechanischer Bandzähler statt zu wechseln. Nach dem Launch steht der Zähler nicht auf Null, sondern zählt als T-PLUS weiter hoch — ein Bandzähler läuft, solange die Aufnahme läuft | Laut |
 | **The lens** | Kein Pin mehr (Korrektur nach Rollout, siehe unten) — ruhiges `[data-reveal]`-Einblenden wie Modes | Ruhig |
-| **Modes** | Akkordeon unverändert — bewusst ohne Zusatzbewegung, damit man Zeit hat, Infos zu lesen | Ruhig |
+| **Modes** | Akkordeon unverändert — bewusst ohne Zusatzbewegung, damit man Zeit hat, Infos zu lesen. Ab 1100px steht rechts ein Preview-Feed: Hover über einer Zeile schaltet auf ein Standbild des Modus, der Wechsel ist ein Kanalwechsel und löst denselben Scrub-Burst aus wie die Kapitelgrenzen (§5) | Ruhig, mit Feed |
 | **Environments/Gallery** | Horizontale Filmrolle, Drag-Scrub, höchste Shader-Intensität der Seite | Laut — zweiter Höhepunkt |
 | **Studio** | Kompletter Apparat aus: kein Grain, kein HUD, kein Cursor, kein Sound | Stille — größter Kontrast der Seite, macht die lauten Momente erst glaubwürdig |
-| **Footer** | Signal-End-Bookend (§5): Timestamp friert, Apparat fährt sichtbar herunter | Laut → aus |
+| **Footer** | Signal-End-Bookend (§5): Timestamp friert, Apparat fährt sichtbar herunter. Dazu ein Session-Log im HUD-Vokabular (gespultes Band, Peak-Scrub, On-Air-Zeit) — rein lokal berechnet | Laut → aus |
 
 **Korrektur nach erstem Rollout — Lens:** die ursprüngliche Pin/Scrub-Choreografie ("Log-Einträge blättern wie Akte-Seiten") stand in keinem Verhältnis zum Inhalt — vier Ein-Satz-Einträge rechtfertigen keine eigene, mehrere hundert Pixel lange Scroll-Strecke. Lehre für §2 (Ambitionsniveau): der Mechanismus muss zum Gewicht des Inhalts passen, nicht nur zum Rest des Systems — dieselbe Zurückhaltung, die Modes schon hatte ("bewusst ohne Zusatzbewegung"), gilt jetzt auch hier.
 
@@ -151,9 +156,11 @@ Unverändert gegenüber v1 — weiterhin gültig:
 
 **Screenshots** (`assets/screenshots/`): Wald/Schrotflinte/Rauch (kein Fisheye) · Wald mit sichtbarem Fisheye+CA-Rand (Sprint) · urbaner Innenraum, Graffiti, warmes Licht · Trainingsgelände, Nachladen in Nahaufnahme.
 
-**Gameplay-Clips** (`assets/clips/`, 1080p/30fps H.264): `213035` (17s, urban) · `213157` (20s, Wald, deutlicher Fisheye, aktuell im Hero) · `213312` (10s, Wald, Blutlache) · `213626` (28s, Wald, starker Fisheye, Explosion).
+**Gameplay-Clips** — Rohmaterial in `raw/clips/` (1080p/30fps H.264, nicht im Build): `213035` (17s, urban) · `213157` (20s, Wald, deutlicher Fisheye, Basis des Hero-Loops) · `213312` (10s, Wald, Blutlache) · `213626` (28s, Wald, starker Fisheye, Explosion).
 
-Für die Filmrollen-Gallery (§5, §6) wird mehr Rohmaterial hilfreich sein als für die alte gestapelte Grid-Ansicht — mittelfristig zusätzliche Clips/Screens einplanen, kein Blocker für den Start.
+**Ausgelieferte Clips** (`public/clips/`, 720p, 8s, WebM VP9 + MP4 H.264, je Clip ein Poster-WebP): `clip-urban` (aus 213035) · `clip-outskirts` (aus 213312) · `clip-explosion` (aus 213626, Segment um den hellsten Frame). Zusammen unter 15 MB statt 75 MB; die Poster laufen bis zum ersten Video-Frame durch denselben Shader. Neue Clips bitte über dieselbe Pipeline ziehen (720p, 8s, beide Container, Poster).
+
+**Social Preview:** `public/og.jpg` (1200×630, aus dem Hero-Screenshot mit den Seitenschriften gesetzt). Die absolute URL kommt aus `VITE_SITE_URL` (`.env.local`).
 
 ---
 
@@ -180,12 +187,14 @@ War in v1 bewusst offen. Jetzt final, weil der Umfang (Shader, Scrub-Timelines, 
 
 Damit entfällt auch der v1-Plan für ein GLB-Waffenmodell vollständig (§4.3).
 
-**Empfohlene Umsetzungsreihenfolge** (Risiko/Wirkung-Verhältnis, keine Big-Bang-Migration):
-1. Lenis + Custom-Cursor als Fundament (geringes Risiko, sofort spürbar)
-2. Scrub-Shader zuerst nur im Hero beweisen, bevor er seitenweit ausgerollt wird
-3. Shader-System auf Chapter-Transitions + Gallery-Filmrolle ausweiten
-4. Pin/Scrub für "The lens"
-5. Sound-System zuletzt (reines Polish-Layer, keine Abhängigkeit für den Rest)
+**Umsetzungsreihenfolge** (Risiko/Wirkung-Verhältnis, keine Big-Bang-Migration) — alle Schritte sind umgesetzt:
+1. Lenis + Custom-Cursor als Fundament (geringes Risiko, sofort spürbar) ✓
+2. Scrub-Shader zuerst nur im Hero beweisen, bevor er seitenweit ausgerollt wird ✓
+3. Shader-System auf Chapter-Transitions + Gallery-Filmrolle ausweiten ✓ (Gallery über einen gemeinsamen WebGL-Kontext, `reel-shader.js`)
+4. Pin/Scrub für "The lens" — gebaut und wieder entfernt, siehe §6
+5. Sound-System zuletzt (reines Polish-Layer, keine Abhängigkeit für den Rest) ✓
+
+**Mobile:** Typografie und Abstände laufen über `clamp()` (`responsive.css`), der Hero über `dvh`. Die Filmrolle steht auf Handys hochkant (4:5), der Shader beschneidet die 16:9-Quellen wie `object-fit: cover` statt sie zu strecken.
 
 ---
 

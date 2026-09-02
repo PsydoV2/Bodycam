@@ -6,6 +6,7 @@
 }
 
 .gallery-pin {
+  position: relative;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -47,10 +48,28 @@
 }
 
 .gallery-track {
+  position: relative;
+  z-index: 2; /* über dem gemeinsamen Canvas — Frames sind transparent, Captions sichtbar */
   display: flex;
   gap: 24px;
   width: max-content;
   will-change: transform;
+}
+
+/* Gemeinsamer WebGL-Canvas (reel-shader.js): deckt den Pin ab, malt nur in
+   die Rechtecke der sichtbaren Frames, Rest bleibt transparent. */
+.gallery-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+}
+
+.gallery-pin.is-shaded .gallery-canvas {
+  display: block;
 }
 
 /* Fixes Seitenverhältnis statt height:auto — verhindert Cumulative
@@ -65,8 +84,7 @@
 }
 
 .media-frame img,
-.media-frame video,
-.media-frame canvas {
+.media-frame video {
   position: absolute;
   inset: 0;
   display: block;
@@ -75,20 +93,17 @@
   object-fit: cover;
 }
 
-.media-frame canvas {
-  display: none;
+/* Solange der Shader läuft, bleibt die rohe Quelle unsichtbar und das
+   Frame transparent — der gemeinsame Canvas darunter zeigt die geshadete
+   Version. Ohne WebGL/unter reduced-motion greift der v1-CSS-Fallback
+   (Filter + Vignette), das Poster kommt dann vom video[poster]-Attribut. */
+.media-frame.is-shaded {
+  background: transparent;
 }
 
-/* Solange der Shader läuft, bleibt die rohe Quelle unsichtbar (Canvas
-   zeigt die geshadete Version) — ohne WebGL/unter reduced-motion greift
-   der v1-CSS-Fallback (Filter + Vignette). */
 .media-frame.is-shaded img,
 .media-frame.is-shaded video {
   opacity: 0;
-}
-
-.media-frame.is-shaded canvas {
-  display: block;
 }
 
 .media-frame.is-fallback img,
@@ -119,7 +134,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1;
+  z-index: 3;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 2px;

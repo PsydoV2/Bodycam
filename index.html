@@ -10,6 +10,25 @@
       content="Unofficial fan redesign of the Bodycam website — a body-camera-perspective tactical shooter by Reissad Studio. Scroll to scrub the feed."
     />
     <title>Bodycam</title>
+
+    <!-- Social Preview — %VITE_SITE_URL% kommt aus .env / .env.local (leer =
+         relative URLs; für Discord/X/Facebook braucht es die absolute Domain). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Bodycam" />
+    <meta property="og:title" content="Bodycam — See combat through the lens." />
+    <meta
+      property="og:description"
+      content="Unofficial fan redesign of the Bodycam website. Scroll to scrub the feed."
+    />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Body-camera view of a burned forest with the Bodycam HUD overlay" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bodycam — See combat through the lens." />
+    <meta name="twitter:description" content="Unofficial fan redesign of the Bodycam website. Scroll to scrub the feed." />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
     <script>
       // Synchron, vor dem ersten Paint: schaltet die Scroll-Reveal-Zustände
       // nur frei, wenn JS tatsächlich läuft — ohne JS bleibt alles sofort sichtbar.
@@ -44,10 +63,15 @@
     <div class="grain"></div>
     <canvas id="overlay-canvas" aria-hidden="true"></canvas>
 
-    <div class="hud-overlay" aria-hidden="true">
-      <div class="hud-rec"><span class="dot"></span><span class="hud-rec-label">REC</span><span id="rec-time">00:14:52</span></div>
-      <div class="hud-batt">UNIT-7 · BATT 74%</div>
-      <div class="hud-sector" id="hud-sector">CAM_03 // FOREST SECTOR</div>
+    <div class="hud-overlay">
+      <div class="hud-rec" aria-hidden="true"><span class="dot"></span><span class="hud-rec-label">REC</span><span id="rec-time">00:14:52</span></div>
+      <div class="hud-top-right">
+        <div class="hud-batt" aria-hidden="true"><span class="hud-unit">UNIT-7 · </span>BATT <span id="hud-batt-value">74%</span></div>
+        <!-- Sound ist opt-in (CONCEPT.md §4.4): ohne diesen Klick existiert
+             kein AudioContext. Einziges interaktives Element im HUD. -->
+        <button class="hud-audio" id="hud-audio" type="button" aria-pressed="false" aria-label="Toggle ambient audio">AUDIO OFF</button>
+      </div>
+      <div class="hud-sector" id="hud-sector" aria-hidden="true">CAM_03 // FOREST SECTOR</div>
     </div>
 
     <main>
@@ -95,12 +119,13 @@
             <!-- Zielzeitpunkt des Updates (UTC). Der Dispatch nennt nur den
                  2. September 2026 ohne Uhrzeit; 17:00 UTC ist die übliche
                  Steam-Release-Zeit (10:00 PT) und hier eine Annahme —
-                 anpassen, sobald die Uhrzeit bekannt ist. -->
+                 anpassen, sobald die Uhrzeit bekannt ist. Danach zählt der
+                 Bandzähler als T-PLUS weiter hoch (countdown.js). -->
             <div
               class="update-countdown"
               id="update-countdown"
               data-target="2026-09-02T17:00:00Z"
-              data-live-label="LIVE NOW · FREE UPDATE"
+              data-live-label="T-PLUS · DEPLOYED v0.8"
             >
               <span class="countdown-label">T-MINUS · FREE UPDATE</span>
               <span class="countdown-value" id="countdown-value">--d --:--:--</span>
@@ -259,10 +284,11 @@
       </section>
 
       <section class="modes" id="modes" data-sector="TRAINING GROUND">
-        <div class="section-inner">
+        <div class="section-inner modes-layout">
+          <div class="modes-main">
           <h2 data-decode>Modes in early access</h2>
           <ul class="mode-list">
-            <li class="mode-row" data-reveal style="--reveal-i: 0">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview.webp" style="--reveal-i: 0">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-01">
                 <span class="mode-id">MODE_01</span>
                 <span class="mode-name">Deathmatch</span>
@@ -272,7 +298,7 @@
                 <p>Free-for-all. No teams, no mercy — last one standing wins the round.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 1">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%283%29.webp" style="--reveal-i: 1">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-02">
                 <span class="mode-id">MODE_02</span>
                 <span class="mode-name">Gun Game</span>
@@ -282,7 +308,7 @@
                 <p>Land a kill, advance a weapon. Full loadout progression, zero downtime.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 2">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%281%29.webp" style="--reveal-i: 2">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-03">
                 <span class="mode-id">MODE_03</span>
                 <span class="mode-name">Team Deathmatch</span>
@@ -292,7 +318,7 @@
                 <p>Two squads, one objective: outlast the other side's kill count.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 3">
+            <li class="mode-row" data-reveal data-feed="/screenshots/preview%20%282%29.webp" style="--reveal-i: 3">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-04">
                 <span class="mode-id">MODE_04</span>
                 <span class="mode-name">Body Bomb</span>
@@ -302,7 +328,7 @@
                 <p>Plant, defuse, survive. One explosive, one chance to read the room.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 4">
+            <li class="mode-row" data-reveal data-feed="/clips/clip-urban-poster.webp" style="--reveal-i: 4">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-05">
                 <span class="mode-id">MODE_05</span>
                 <span class="mode-name">Hardpoint</span>
@@ -312,7 +338,7 @@
                 <p>Hold the zone. Every second inside it counts against the clock.</p>
               </div>
             </li>
-            <li class="mode-row" data-reveal style="--reveal-i: 5">
+            <li class="mode-row" data-reveal data-feed="/clips/clip-explosion-poster.webp" style="--reveal-i: 5">
               <button class="mode-header" aria-expanded="false" aria-controls="mode-brief-06">
                 <span class="mode-id">MODE_06</span>
                 <span class="mode-name">Zombies</span>
@@ -323,6 +349,19 @@
               </div>
             </li>
           </ul>
+          </div>
+
+          <!-- Preview-Feed (modes-feed.js): schaltet beim Hover auf ein
+               Standbild des Modus — Kanalwechsel mit Scrub-Burst. Nur ab
+               1100px sichtbar, rein dekorativ. -->
+          <aside class="modes-feed" aria-hidden="true">
+            <div class="modes-feed-frame">
+              <img src="/screenshots/preview.webp" alt="" />
+              <canvas></canvas>
+              <span class="modes-feed-caption">MODE_01 // DEATHMATCH</span>
+            </div>
+            <p class="modes-feed-hint">PREVIEW FEED · HOVER A MODE</p>
+          </aside>
         </div>
       </section>
 
@@ -333,39 +372,46 @@
           <div class="gallery-track">
             <figure class="media-frame">
               <img src="/screenshots/preview.webp" alt="Aiming a shotgun through smoke in a burned forest" />
-              <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:03:41</figcaption>
             </figure>
             <figure class="media-frame">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213035.mp4" muted loop playsinline preload="none"></video>
-              <canvas aria-hidden="true"></canvas>
+              <video poster="/clips/clip-urban-poster.webp" muted loop playsinline preload="none">
+                <source src="/clips/clip-urban.webm" type="video/webm" />
+                <source src="/clips/clip-urban.mp4" type="video/mp4" />
+              </video>
               <figcaption>URBAN SECTOR // 00:07:12</figcaption>
             </figure>
             <figure class="media-frame">
               <img src="/screenshots/preview%20%282%29.webp" alt="Graffiti-covered urban interior corridor" />
-              <canvas aria-hidden="true"></canvas>
               <figcaption>URBAN SECTOR // 00:07:58</figcaption>
             </figure>
             <figure class="media-frame">
               <img src="/screenshots/preview%20%281%29.webp" alt="Sprinting through a burned forest with two teammates" />
-              <canvas aria-hidden="true"></canvas>
               <figcaption>FOREST SECTOR // 00:04:58</figcaption>
             </figure>
             <figure class="media-frame">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213312.mp4" muted loop playsinline preload="none"></video>
-              <canvas aria-hidden="true"></canvas>
+              <video poster="/clips/clip-outskirts-poster.webp" muted loop playsinline preload="none">
+                <source src="/clips/clip-outskirts.webm" type="video/webm" />
+                <source src="/clips/clip-outskirts.mp4" type="video/mp4" />
+              </video>
               <figcaption>OUTSKIRTS // 00:09:03</figcaption>
             </figure>
             <figure class="media-frame">
               <img src="/screenshots/preview%20%283%29.webp" alt="Reloading a shotgun in close-up at the training ground" />
-              <canvas aria-hidden="true"></canvas>
               <figcaption>TRAINING GROUND // 00:00:52</figcaption>
             </figure>
             <figure class="media-frame">
-              <video src="/clips/Aufzeichnung%202026-08-31%20213626.mp4" muted loop playsinline preload="none"></video>
-              <canvas aria-hidden="true"></canvas>
+              <video poster="/clips/clip-explosion-poster.webp" muted loop playsinline preload="none">
+                <source src="/clips/clip-explosion.webm" type="video/webm" />
+                <source src="/clips/clip-explosion.mp4" type="video/mp4" />
+              </video>
               <figcaption>FOREST SECTOR // 00:14:10</figcaption>
             </figure>
+          </div>
+          <!-- EIN WebGL-Canvas für alle Frames (reel-shader.js) statt je
+               einem Kontext pro Frame — deckt den Pin ab, zeichnet nur in
+               die Rechtecke der sichtbaren Frames. -->
+          <canvas class="gallery-canvas" aria-hidden="true"></canvas>
           </div>
         </div>
       </section>
@@ -453,6 +499,14 @@
             </div>
             <p class="newsletter-note" id="newsletter-note" role="status"></p>
           </form>
+
+          <!-- Session-Log (hud-alive.js): wird beim SIGNAL END befüllt —
+               rein lokal berechnet, nichts verlässt die Seite. -->
+          <dl class="session-log" id="session-log" aria-label="Session log">
+            <div><dt>TAPE</dt><dd data-log="tape">--:--:-- → --:--:--</dd></div>
+            <div><dt>PEAK SCRUB</dt><dd data-log="peak">-.-×</dd></div>
+            <div><dt>ON AIR</dt><dd data-log="onair">--:--</dd></div>
+          </dl>
 
           <div class="footer-bottom">
             <a class="inline-link" href="https://reissad.com/" target="_blank" rel="noopener">Official site ↗</a>

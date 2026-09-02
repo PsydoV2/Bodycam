@@ -9,7 +9,7 @@ import { triggerBurst, freezeTimecode } from './scroll-engine.js';
 
 const SHUTDOWN_DELAY_MS = 420; // Burst zuerst sichtbar werden lassen, dann aus
 
-export function initSignalEnd({ cursor, suppressor, reducedMotion }) {
+export function initSignalEnd({ cursor, suppressor, sound, hud, reducedMotion }) {
   const footer = document.querySelector('#footer');
   if (!footer) return;
 
@@ -21,6 +21,8 @@ export function initSignalEnd({ cursor, suppressor, reducedMotion }) {
     freezeTimecode(true);
     cursor?.suppress('signal-end', true);
     suppressor?.set('signal-end', true);
+    sound?.mute('signal-end', true);
+    hud?.renderSessionLog();
   }
 
   function resume() {
@@ -29,6 +31,7 @@ export function initSignalEnd({ cursor, suppressor, reducedMotion }) {
     freezeTimecode(false);
     cursor?.suppress('signal-end', false);
     suppressor?.set('signal-end', false);
+    sound?.mute('signal-end', false);
   }
 
   const observer = new IntersectionObserver(

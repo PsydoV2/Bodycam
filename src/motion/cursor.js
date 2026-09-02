@@ -24,6 +24,7 @@ export function initCursor({ reducedMotion }) {
   document.body.appendChild(root);
   document.documentElement.classList.add('has-af-cursor');
 
+  const suppressors = new Set();
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
   let x = mouseX;
@@ -51,13 +52,23 @@ export function initCursor({ reducedMotion }) {
     root.classList.remove('is-visible');
   });
 
+  const focusListeners = new Set();
+  let lastTarget = null;
   document.addEventListener('mouseover', (e) => {
     const target = e.target.closest?.(INTERACTIVE_SELECTOR);
     root.classList.toggle('is-focused', Boolean(target));
     targetScale = target ? 1.7 : 1;
+    // Autofokus-Snap: einmal pro neuem Ziel (Sound-Tick, §4.4) — und der
+    // Fokus-Pull (blur -> scharf) läuft per CSS-Animation neu an.
+    if (target && target !== lastTarget && suppressors.size === 0) {
+      root.classList.remove('is-pulling');
+      void root.offsetWidth; // Animation neu starten
+      root.classList.add('is-pulling');
+      focusListeners.forEach((fn) => fn(target));
+    }
+    lastTarget = target;
   });
 
-  const suppressors = new Set();
   /** Unterdrückt den Cursor, solange mindestens ein Schlüssel aktiv ist
    *  (unfilmed-Sections, Signal-End). */
   function suppress(key, active) {
@@ -85,5 +96,5 @@ export function initCursor({ reducedMotion }) {
   }
   requestAnimationFrame(loop);
 
-  return { suppress, setScrubbing };
+  return { suppress, setScrubbing, onFocus: (fn) => focusListeners.add(fn) };
 }

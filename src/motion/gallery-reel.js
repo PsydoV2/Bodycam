@@ -2,91 +2,91 @@
 // vertikales Scrollen übersetzt sich in horizontale Bewegung durch die
 // Clips — der Scrub-Mechanismus (§4.1) am buchstäblichsten, weil man
 // wortwörtlich durch aufgenommenes Material spult. Zweiter Höhepunkt der
-// Seite. Jedes Medienelement bekommt seinen eigenen Video/Bild-Shader.
+// Seite. Alle Frames werden über EINEN gemeinsamen WebGL-Canvas gerendert
+// (reel-shader.js) statt über je einen eigenen Kontext.
 
 import { gsap, ScrollTrigger, scrubState, getLenis, pushVelocity } from './scroll-engine.js';
-import { ScrubShader } from './scrub-shader.js';
+import { ReelShader } from './reel-shader.js';
+import { coupleVideoRate } from './video-rate.js';
 
 const DRAG_VELOCITY_SCALE = 1.6; // px/ms -> 0..1, grob wie ein zügiger Wheel-Scroll
 const DRAG_THRESHOLD_PX = 4; // ab hier gilt ein Pointer-Down als Ziehen, nicht als Klick
 
-export function initGalleryReel({ reducedMotion, cursor }) {
+export function initGalleryReel({ reducedMotion, cursor, sound }) {
   const section = document.querySelector('#gallery');
   const pin = document.querySelector('.gallery-pin');
   const track = document.querySelector('.gallery-track');
   if (!section || !pin || !track) return null;
 
   const items = Array.from(track.querySelectorAll('.media-frame'));
-  const shaders = [];
   const mediaReadyCallbacks = [];
+  const canvas = pin.querySelector('.gallery-canvas');
+
+  let reel = null;
+  if (!reducedMotion && canvas) {
+    // maxDpr niedriger als der Hero: bis zu drei Frames gleichzeitig im Bild
+    // (Performance-Budget, CONCEPT.md §8).
+    reel = new ReelShader(canvas, pin, () => scrubState.velocity, { baseGrain: 0.055, maxDpr: 1.25 });
+    if (!reel.ok) reel = null;
+  }
+  pin.classList.add(reel ? 'is-shaded' : 'is-fallback');
+
+  const videos = [];
 
   items.forEach((item) => {
     const source = item.querySelector('video, img');
-    const canvas = item.querySelector('canvas');
-    if (!source || !canvas) return;
+    if (!source) return;
+    const isVideo = source.tagName === 'VIDEO';
 
-    // Videos laden erst beim Hereinfahren (preload="none", §8) — bis der
-    // erste Frame da ist, zeigt das Frame "ACQUIRING FEED" statt Schwarz.
-    if (source.tagName === 'VIDEO') {
+    if (isVideo) {
+      videos.push(source);
+      // Videos laden erst beim Hereinfahren (preload="none", §8) — bis der
+      // erste Frame da ist, läuft das Poster durch denselben Shader und das
+      // Frame meldet "ACQUIRING FEED".
       item.classList.add('is-loading');
       source.addEventListener('loadeddata', () => item.classList.remove('is-loading'), { once: true });
+      coupleVideoRate(source);
     }
 
-    if (reducedMotion) {
-      // Reduced-motion: kein Shader, statischer CSS-Fallback-Look reicht
-      // (kein Pin/Scrub sowieso, siehe unten). Kein autoplay-Attribut mehr
-      // im Markup (Performance, §8) — hier explizit nachholen.
+    if (reel) {
+      let poster = null;
+      if (isVideo && source.poster) {
+        poster = new Image();
+        poster.src = source.poster;
+      }
+      reel.addItem(item, source, poster);
+      item.classList.add('is-shaded');
+    } else {
       item.classList.add('is-fallback');
-      if (source.tagName === 'VIDEO') source.play().catch(() => {});
-      return;
-    }
-
-    // maxDpr niedriger als der Hero (bis zu 3 Items gleichzeitig aktiv,
-    // siehe IntersectionObserver unten — Performance-Budget, CONCEPT.md §8).
-    const shader = new ScrubShader(canvas, source, () => scrubState.velocity, { baseGrain: 0.055, maxDpr: 1.25 });
-    item.classList.add(shader.ok ? 'is-shaded' : 'is-fallback');
-    if (shader.ok) {
-      shaders.push({ item, source, shader });
-    } else if (source.tagName === 'VIDEO') {
-      source.play().catch(() => {});
     }
 
     // Bild-/Video-Metadaten kommen asynchron rein und können die
     // Track-Breite nachträglich ändern — die ScrollTrigger-Position muss
     // dann neu berechnet werden (main.js hängt sich hier ein).
     const notifyReady = () => mediaReadyCallbacks.forEach((fn) => fn());
-    if (source.tagName === 'VIDEO') {
-      source.addEventListener('loadedmetadata', notifyReady, { once: true });
-    } else {
-      source.addEventListener('load', notifyReady, { once: true });
-    }
+    source.addEventListener(isVideo ? 'loadedmetadata' : 'load', notifyReady, { once: true });
   });
 
-  // Performance-Budget (CONCEPT.md §8): nur Items nahe am Viewport rendern
-  // und dekodieren — sonst laufen bis zu 7 WebGL-Contexts + Video-Decoder
-  // permanent im Hintergrund weiter, auch komplett außerhalb des Bilds.
-  if (shaders.length) {
-    const visibilityObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const match = shaders.find(({ item }) => item === entry.target);
-          if (!match) return;
-          if (entry.isIntersecting) {
-            match.shader.resume();
-            if (match.source.tagName === 'VIDEO') match.source.play().catch(() => {});
-          } else {
-            match.shader.pause();
-            if (match.source.tagName === 'VIDEO') match.source.pause();
-          }
-        });
-      },
-      // Moderate horizontale Marge: das nächste/vorherige Item soll schon
-      // bereitstehen, bevor es sichtbar wird, ohne dass zu viele Items
-      // gleichzeitig aktiv sind (Performance-Budget, CONCEPT.md §8).
-      { root: null, rootMargin: '0px 40% 0px 40%', threshold: 0 },
-    );
-    shaders.forEach(({ item }) => visibilityObserver.observe(item));
-  }
+  // Performance-Budget (CONCEPT.md §8): nur Frames nahe am Viewport rendern
+  // und dekodieren — sonst laufen alle Video-Decoder permanent weiter, auch
+  // komplett außerhalb des Bilds.
+  const visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const item = entry.target;
+        const video = item.querySelector('video');
+        reel?.setActive(item, entry.isIntersecting);
+        if (video) {
+          if (entry.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        }
+      });
+    },
+    // Moderate horizontale Marge: das nächste/vorherige Frame soll schon
+    // bereitstehen, bevor es sichtbar wird.
+    { root: null, rootMargin: '0px 40% 0px 40%', threshold: 0 },
+  );
+  items.forEach((item) => visibilityObserver.observe(item));
 
   if (reducedMotion) {
     // Kein Pin/Scrub unter reduced-motion (§5-Vertrag) — die Filmrolle
@@ -121,7 +121,8 @@ export function initGalleryReel({ reducedMotion, cursor }) {
   // Drag und Scroll denselben Timecode bewegen — es gibt nur EINE Position
   // im Band, keine zweite, parallel geführte Drag-Koordinate. Die
   // Zieh-Geschwindigkeit speist dieselbe Velocity wie der Scroll, also
-  // reagieren Shader und HUD-Zähler beim Ziehen genauso wie beim Spulen.
+  // reagieren Shader, HUD-Zähler und Video-Rate beim Ziehen genauso wie
+  // beim Spulen.
   const lenis = getLenis();
   let dragging = false;
   let pointerId = null;
@@ -150,6 +151,7 @@ export function initGalleryReel({ reducedMotion, cursor }) {
     pointerId = null;
     pin.classList.remove('is-dragging');
     cursor?.setScrubbing(false);
+    sound?.setScrubbing(false);
   }
 
   pin.addEventListener('pointerdown', (e) => {
@@ -164,6 +166,7 @@ export function initGalleryReel({ reducedMotion, cursor }) {
     pin.setPointerCapture?.(e.pointerId);
     pin.classList.add('is-dragging');
     cursor?.setScrubbing(true);
+    sound?.setScrubbing(true);
   });
 
   pin.addEventListener('pointermove', (e) => {
@@ -177,7 +180,7 @@ export function initGalleryReel({ reducedMotion, cursor }) {
 
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
-    pushVelocity((Math.abs(e.clientX - lastX) / dt) / DRAG_VELOCITY_SCALE);
+    pushVelocity(Math.abs(e.clientX - lastX) / dt / DRAG_VELOCITY_SCALE);
     lastX = e.clientX;
     lastT = now;
   });
@@ -201,7 +204,7 @@ export function initGalleryReel({ reducedMotion, cursor }) {
 
   return {
     destroy: () => {
-      shaders.forEach(({ shader }) => shader.destroy());
+      reel?.destroy();
       st.kill();
     },
     onMediaReady: (fn) => mediaReadyCallbacks.push(fn),

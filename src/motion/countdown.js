@@ -6,6 +6,10 @@
 // und drehen sich dann auf den echten Wert ein — der Zähler "rastet",
 // statt fertig da zu stehen.
 //
+// Nach dem Zielzeitpunkt steht der Zähler nicht auf Null, sondern zählt als
+// T-PLUS weiter hoch — ein Bandzähler läuft, solange die Aufnahme läuft.
+// So bleibt die Dispatch-Section nach dem Launch lebendig statt veraltet.
+//
 // Unter reduced-motion: keine Rollen, schlicht der Text, einmal pro Sekunde.
 
 const FORMAT = 'DDd HH:MM:SS';
@@ -32,7 +36,7 @@ export function initCountdown({ reducedMotion }) {
   const target = Date.parse(root.dataset.target || '');
   if (Number.isNaN(target)) return;
 
-  const liveLabel = root.dataset.liveLabel || 'LIVE NOW · FREE UPDATE';
+  const liveLabel = root.dataset.liveLabel || 'T-PLUS · DEPLOYED';
   const idleLabel = labelEl?.textContent || '';
 
   function remaining() {
@@ -48,7 +52,7 @@ export function initCountdown({ reducedMotion }) {
   if (reducedMotion) {
     const render = () => {
       const ms = remaining();
-      valueEl.textContent = formatRemaining(ms);
+      valueEl.textContent = formatRemaining(Math.abs(ms));
       setLiveState(ms <= 0);
     };
     render();
@@ -98,7 +102,7 @@ export function initCountdown({ reducedMotion }) {
   let armed = false;
   function render() {
     const ms = remaining();
-    const text = formatRemaining(ms);
+    const text = formatRemaining(Math.abs(ms));
     valueEl.setAttribute('aria-label', text);
     setLiveState(ms <= 0);
     if (armed) setStrips(text);

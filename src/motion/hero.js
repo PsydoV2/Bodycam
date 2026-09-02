@@ -4,6 +4,7 @@
 
 import { scrubState } from './scroll-engine.js';
 import { ScrubShader } from './scrub-shader.js';
+import { coupleVideoRate } from './video-rate.js';
 
 export function initHero({ reducedMotion }) {
   const heroEl = document.querySelector('#hero');
@@ -12,6 +13,8 @@ export function initHero({ reducedMotion }) {
   if (!heroEl) return;
 
   if (!reducedMotion && video && canvas) {
+    // Das Video spult selbst mit (§1: Scroll-Geschwindigkeit = Bandgeschwindigkeit).
+    coupleVideoRate(video);
     // maxDpr 1.5 statt 2: das Quellvideo ist 1080p, Grain/CA brauchen keine
     // Retina-Schärfe — auf 4K-Displays spart das ~44 % Fragment-Arbeit.
     const shader = new ScrubShader(canvas, video, () => scrubState.velocity, { baseGrain: 0.05, maxDpr: 1.5 });
