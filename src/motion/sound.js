@@ -1,9 +1,9 @@
 // Sound (CONCEPT.md §4.4) — opt-in, nie automatisch hörbar. Web Audio nativ,
-// keine Bibliothek: ein sehr leises Rauschbett (Funk-/Bandrauschen), dessen
-// Pegel aus derselben Scrub-Velocity kommt wie die Shader-Uniforms (ein
-// System, kein zweites), ein leises Bestätigungs-Ticken beim Autofokus-Snap
-// (§4.2) und ein Transport-Motor, der nur beim Ziehen an der Filmrolle
-// läuft. In "unfilmed"-Sections und nach SIGNAL END ist alles stumm.
+// keine Bibliothek: ein leises Bestätigungs-Ticken beim Autofokus-Snap auf
+// jedem hoverbaren Element (§4.2) und ein Transport-Motor, der nur beim
+// Ziehen an der Filmrolle läuft. Kein Dauer-Rauschbett — das las sich als
+// Störgeräusch, nicht als Atmosphäre. In "unfilmed"-Sections und nach
+// SIGNAL END ist alles stumm.
 //
 // Erst der Klick auf den HUD-Chip erzeugt den AudioContext — vorher
 // existiert kein Audio-Graph, es kann also auch nichts versehentlich
@@ -11,8 +11,6 @@
 
 import { onScrubTick } from './scroll-engine.js';
 
-const NOISE_BASE = 0.035;
-const NOISE_SCRUB = 0.2;
 const MOTOR_GAIN = 0.1;
 
 export function initSound() {
@@ -21,7 +19,6 @@ export function initSound() {
 
   let ctx = null;
   let master = null;
-  let noiseGain = null;
   let motorOsc = null;
   let motorGain = null;
   let enabled = false;
@@ -33,29 +30,6 @@ export function initSound() {
     master = ctx.createGain();
     master.gain.value = 0;
     master.connect(ctx.destination);
-
-    // Rauschbett: weißes Rauschen, tiefpassgefiltert und leicht "braun"
-    // integriert — liest sich wie Funkrauschen/Handschuhreibung, nicht wie
-    // ein Synthesizer.
-    const seconds = 2;
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < data.length; i += 1) {
-      const white = Math.random() * 2 - 1;
-      last = 0.985 * last + 0.06 * white;
-      data[i] = last * 3;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    noise.loop = true;
-    const lowpass = ctx.createBiquadFilter();
-    lowpass.type = 'lowpass';
-    lowpass.frequency.value = 1400;
-    noiseGain = ctx.createGain();
-    noiseGain.gain.value = NOISE_BASE;
-    noise.connect(lowpass).connect(noiseGain).connect(master);
-    noise.start();
 
     // Transport-Motor: Sägezahn tief gefiltert, Tonhöhe folgt der Velocity.
     motorOsc = ctx.createOscillator();
@@ -78,7 +52,6 @@ export function initSound() {
     if (!ctx) return;
     const target = audible() ? 1 : 0;
     master.gain.value += (target - master.gain.value) * 0.08;
-    noiseGain.gain.value = NOISE_BASE + state.velocity * NOISE_SCRUB;
     motorGain.gain.value += ((scrubbing ? MOTOR_GAIN : 0) - motorGain.gain.value) * 0.15;
     motorOsc.frequency.value = 46 + state.velocity * 170;
   });

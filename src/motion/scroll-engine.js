@@ -19,7 +19,11 @@ const PX_PER_SECOND = 6; // simulierte Bandsekunden pro Scroll-Pixel
 const ATTACK_RATE = 11; // 1/s — wie schnell velocity nach oben folgt
 const DECAY_RATE = 3.4; // 1/s — wie schnell velocity abklingt
 const RAW_DECAY_RATE = 7; // 1/s — wie schnell ein einzelner Scroll-Spike verpufft
-const VELOCITY_NORMALIZER = 2.2; // Lenis-Velocity-Einheiten -> 0..1
+// Lenis-Velocity (px/Frame) -> 0..1. Gemessen: langsames Radeln peakt bei
+// ~3, mittleres bei ~8, ein schneller Flick bei ~30–50. Faktor 0.06 mappt
+// das auf ~0.2 / ~0.5 / 1.0 — vorher (2.2) war schon die kleinste
+// Radbewegung "volle Bandgeschwindigkeit" und jeder Scroll voller Störpegel.
+const VELOCITY_NORMALIZER = 0.06;
 
 export const scrubState = {
   velocity: 0, // geglättet, 0..1 — treibt Shader/HUD/Cursor/Video-Rate/Sound

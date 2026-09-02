@@ -113,7 +113,7 @@ v1 diskutierte drei 3D-Optionen und empfahl einen schwebenden, beleuchteten Waff
 
 ### 4.4 Sound (opt-in, nie automatisch hörbar)
 
-Sehr leises Ambient-Bett (Handschuh-Rascheln/Funkrauschen), an-/ausschaltbar über einen HUD-Chip ("AUDIO", gleiche Optik wie REC/BATT). Rauschen schwillt bei schnellem Scrub kurz an — gleiche Uniform wie §4.1, kein separates System. Autofokus-Snap (§4.2) bekommt ein sehr leises Bestätigungs-Ticken, das Ziehen an der Filmrolle (§6) einen tiefen Transport-Motor, dessen Tonhöhe der Velocity folgt. Ohne explizites Antippen bleibt die Seite stumm — sowohl aus Browser-Policy-Gründen als auch, weil unaufgeforderter Sound auf Landingpages fast immer nervt statt beeindruckt. In "unfilmed"-Sections und nach SIGNAL END ist der Ton aus, wie der Rest des Apparats.
+An-/ausschaltbar über einen HUD-Chip ("AUDIO", gleiche Optik wie REC/BATT). Kein Dauer-Rauschbett — das ursprünglich geplante Ambient-Rauschen las sich in der Praxis als Störgeräusch und wurde gestrichen. Stattdessen ein sehr leises Bestätigungs-Ticken beim Autofokus-Snap (§4.2), bewusst nur auf den aufklappbaren Mode-/Update-Zeilen — auf jedem Link und Button wurde es penetrant; das Ziehen an der Filmrolle (§6) bekommt einen tiefen Transport-Motor, dessen Tonhöhe der Velocity folgt. Ohne explizites Antippen bleibt die Seite stumm — sowohl aus Browser-Policy-Gründen als auch, weil unaufgeforderter Sound auf Landingpages fast immer nervt statt beeindruckt. In "unfilmed"-Sections und nach SIGNAL END ist der Ton aus, wie der Rest des Apparats.
 
 **Umgesetzt** (`src/motion/sound.js`): Der AudioContext entsteht erst beim Klick auf den Chip — vorher existiert kein Audio-Graph, es kann also auch nichts versehentlich hörbar werden.
 

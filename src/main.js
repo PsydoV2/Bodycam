@@ -37,7 +37,11 @@ initScrollEngine();
 const cursor = initCursor({ reducedMotion });
 const sound = initSound(); // §4.4 — opt-in, baut erst beim Klick einen AudioContext
 const hud = initHudAlive();
-cursor?.onFocus(() => sound?.tick());
+// Der Fokus-Tick spielt nur auf den aufklappbaren Mode-/Update-Zeilen —
+// auf jedem Link/Button wurde er schnell penetrant.
+cursor?.onFocus((target) => {
+  if (target.closest('.mode-header')) sound?.tick();
+});
 
 // --- Seitenweite Atmosphäre-Schicht (§4.1) — ersetzt das alte statische
 //     .grain-Div, sobald WebGL verfügbar ist.

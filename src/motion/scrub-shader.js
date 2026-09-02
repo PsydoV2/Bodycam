@@ -54,29 +54,32 @@ export const FRAG_SRC = `
     // wäre ein 16:9-Video auf einem Hochkant-Handy verzerrt).
     vec2 uv = (vUv - 0.5) * uUvScale + 0.5;
 
-    float trackStrength = smoothstep(0.15, 1.0, uVelocity);
+    // Die harten Band-Artefakte (Tracking-Bars, Frame-Hold) setzen erst bei
+    // wirklich schnellem Scrub ein — bei normalem Scrollen bleibt das Bild
+    // lesbar, die Störung ist Würze, kein Dauerzustand.
+    float trackStrength = smoothstep(0.45, 1.0, uVelocity);
 
     // Tracking-Bars: kurze, harte Störzeilen wie beim Spulen eines Bandes.
     float rowSeed = floor(uv.y * 90.0 + uTime * 2.0);
     float rowNoise = hash(vec2(rowSeed, floor(uTime * 6.0)));
-    float displace = (rowNoise - 0.5) * 0.06 * trackStrength * step(0.92, rowNoise);
+    float displace = (rowNoise - 0.5) * 0.025 * trackStrength * step(0.95, rowNoise);
     uv.x += displace;
 
-    float caAmount = mix(0.0012, 0.014, uVelocity);
+    float caAmount = mix(0.0012, 0.006, uVelocity);
     vec3 live = sampleCA(uTex, uv, caAmount);
 
     // Frame-Hold: Zeilenbänder aus dem veralteten Frame, horizontal
     // verschoben — Anteil und Versatz wachsen mit der Bandgeschwindigkeit.
     float band = floor(uv.y * 28.0);
     float bandNoise = hash(vec2(band, floor(uTime * 9.0)));
-    float useHold = step(1.0 - 0.55 * trackStrength, bandNoise) * uHoldMix * step(0.05, trackStrength);
-    vec2 holdUv = uv + vec2((hash(vec2(band, 7.0)) - 0.5) * 0.09 * trackStrength, 0.0);
+    float useHold = step(1.0 - 0.3 * trackStrength, bandNoise) * uHoldMix * step(0.05, trackStrength);
+    vec2 holdUv = uv + vec2((hash(vec2(band, 7.0)) - 0.5) * 0.04 * trackStrength, 0.0);
     vec3 held = sampleCA(uHold, clamp(holdUv, 0.0, 1.0), caAmount * 1.5);
     vec3 color = mix(live, held, useHold);
 
     // Grain und Vignette beziehen sich aufs Zielrechteck (vUv), nicht auf
     // die beschnittene Textur — sonst wandert die Vignette mit dem Crop.
-    float grainAmt = mix(uBaseGrain, 0.35, uVelocity);
+    float grainAmt = mix(uBaseGrain, 0.16, uVelocity);
     float grain = (hash(vUv * uResolution.xy + uTime * 60.0) - 0.5) * grainAmt;
     color += grain;
 
