@@ -11,9 +11,8 @@
    Fließtext — das wäre bei mehrzeiligen Absätzen einfach schlecht lesbar). */
 .studio .section-inner {
   margin: 0 auto;
-  padding-top: 180px;
-  padding-bottom: 180px;
-  max-width: 560px;
+  padding: 180px var(--gutter, 32px);
+  max-width: calc(560px + 2 * var(--gutter, 32px));
 }
 
 .studio h2 {

@@ -1,9 +1,12 @@
 /* Gemeinsame Section-Konventionen (CONCEPT.md §3 Layout):
    linksbündig, große Ruheflächen, kein zentrierter Text, großzügiger
    Negativraum zwischen Sections. */
+/* Container: 1200px, als Block zentriert — der Text darin bleibt
+   linksbündig. --container-inset ist der Abstand zum Viewport-Rand, den
+   auch Hero-Text und Filmrolle nutzen, damit alles auf einer Kante steht
+   (responsive.css definiert ihn). */
 .section-inner {
-  max-width: 900px;
-  padding: 140px 32px;
+  padding: 140px var(--container-inset, 32px);
 }
 
 .inline-link {
@@ -50,4 +53,118 @@ main h2 {
 .has-js [data-reveal].is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Sichtungsplatz (feed-panel.js): Protokoll links, Monitor rechts. Unter
+   1100px gibt es nur die Liste. */
+.section-feed {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .feed-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 72px;
+    align-items: start;
+  }
+
+  .section-feed {
+    display: block;
+    position: sticky;
+    top: 96px;
+    padding-top: 82px; /* auf Höhe der ersten Zeile, nicht der Überschrift */
+  }
+}
+
+.section-feed-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #000;
+}
+
+.section-feed-frame img,
+.section-feed-frame canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.section-feed-frame canvas {
+  display: none;
+}
+
+.section-feed.is-shaded .section-feed-frame canvas {
+  display: block;
+}
+
+.section-feed.is-shaded .section-feed-frame img {
+  opacity: 0;
+}
+
+.section-feed:not(.is-shaded) .section-feed-frame img {
+  filter: grayscale(0.1) contrast(1.05) brightness(0.9);
+}
+
+.section-feed-caption {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  background: rgba(8, 9, 10, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+/* Rand-Notizen im Akten-Stil unter dem Monitor. */
+.section-feed-meta {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-feed-meta > div {
+  display: flex;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.section-feed-meta dt {
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.section-feed-meta dd {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* Aktive Zeile = das, was gerade auf dem Monitor liegt. */
+.mode-row.is-live .mode-id,
+.log-entry.is-live .log-index {
+  color: var(--accent);
+}
+
+/* Full-Bleed-Hairlines: die Trennlinien der Zeilen (.mode-row in modes.css,
+   .log-entry in lens.css) laufen über die ganze Viewport-Breite, nicht nur
+   über die Textspalte — strukturiert die Fläche rechts, ohne sie zu füllen.
+   Die Section clippt horizontal (clip statt hidden, damit sticky weiter
+   funktioniert). */
+.update,
+.lens,
+.modes {
+  overflow-x: clip;
 }

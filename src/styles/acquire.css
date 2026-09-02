@@ -7,6 +7,10 @@
 .acquire .section-inner {
   padding-top: 56px;
   padding-bottom: 56px;
+}
+
+.acquire .steam-widget,
+.acquire .acquire-tag {
   max-width: 700px;
 }
 
