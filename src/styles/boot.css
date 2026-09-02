@@ -79,3 +79,68 @@
     content: '...';
   }
 }
+
+/* Tracking-Bars (CONCEPT.md §5): harte, horizontale Störzeilen, die beim
+   Signalaufbau durchs Bild ziehen — dasselbe Vokabular wie die Bars im
+   Video-Shader (§4.1), hier rein per CSS, weil der Shader zu diesem
+   Zeitpunkt noch gar nicht läuft. */
+.boot-bars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.boot-bars span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(242, 239, 230, 0.55);
+  box-shadow:
+    0 0 6px rgba(242, 239, 230, 0.35),
+    0 6px 0 rgba(242, 239, 230, 0.12);
+  transform: translateY(-10vh) scaleX(1.02);
+  animation: boot-track 0.9s cubic-bezier(0.3, 0, 0.1, 1) infinite;
+}
+
+.boot-bars span:nth-child(2) {
+  height: 1px;
+  animation-delay: 0.28s;
+  animation-duration: 1.15s;
+  opacity: 0.7;
+}
+
+.boot-bars span:nth-child(3) {
+  height: 7px;
+  background: rgba(242, 239, 230, 0.18);
+  animation-delay: 0.55s;
+  animation-duration: 0.75s;
+}
+
+@keyframes boot-track {
+  0% {
+    transform: translateY(-10vh) translateX(-1.5%);
+  }
+  40% {
+    transform: translateY(38vh) translateX(1%);
+  }
+  41% {
+    transform: translateY(44vh) translateX(-2%);
+  }
+  100% {
+    transform: translateY(110vh) translateX(0.5%);
+  }
+}
+
+/* Fokus-Pull (§5): Hero startet unscharf und "rastet" beim Ende der
+   Boot-Sequenz scharf ein. Nur auf dem Hero, nicht auf <main> — ein
+   Filter auf <main> würde ScrollTriggers position:fixed-Pins brechen und
+   kostet auf einem seitenhohen Element unnötig. */
+.is-booting .hero {
+  filter: blur(16px) brightness(0.55);
+}
+
+.is-focusing .hero {
+  filter: blur(0) brightness(1);
+  transition: filter 0.85s cubic-bezier(0.2, 0.7, 0.15, 1);
+}

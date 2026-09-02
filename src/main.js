@@ -21,7 +21,9 @@ import { initCursor } from './motion/cursor.js';
 import { initBoot } from './motion/boot.js';
 import { initDecodeText, decodeNow } from './motion/decode-text.js';
 import { initGalleryReel } from './motion/gallery-reel.js';
-import { initStudioToggle } from './motion/studio-toggle.js';
+import { initUnfilmed } from './motion/unfilmed.js';
+import { initSignalEnd } from './motion/signal-end.js';
+import { initCountdown } from './motion/countdown.js';
 import { initChapterTransitions } from './motion/chapter-transitions.js';
 
 const reducedMotion = prefersReducedMotion;
@@ -51,8 +53,10 @@ suppressor.watch(document.querySelector('#gallery'), 'gallery');
 // eigenes Pin-Modul mehr nötig, dafür auch keine Pin-Spacer-Reihenfolge
 // mehr zu beachten.
 initHero({ reducedMotion });
-const gallery = initGalleryReel({ reducedMotion });
-initStudioToggle({ cursor });
+const gallery = initGalleryReel({ reducedMotion, cursor });
+initUnfilmed({ cursor, suppressor }); // Acquire + Studio (§6)
+initSignalEnd({ cursor, suppressor, reducedMotion }); // Footer-Bookend (§5)
+initCountdown({ reducedMotion }); // Dispatch-Bandzähler (§6)
 initChapterTransitions();
 initDecodeText({ reducedMotion });
 
@@ -76,7 +80,8 @@ initBoot({ reducedMotion }).then(() => {
 // --- HUD-Timecode: an Scroll-Position gekoppelt (CONCEPT.md §4.1) -------
 // Kein unabhängiger Fake-Timer mehr — der Zähler IST die Scroll-Position,
 // stottert bei hoher Scrub-Geschwindigkeit, bevor er sich beim Anhalten
-// wieder stabilisiert (siehe prototyp/prototype-scrub.html).
+// wieder stabilisiert (siehe prototyp/prototype-scrub.html). Beim
+// Signal-End im Footer (§5) friert er ein und stottert auch nicht mehr.
 const recTimeEl = document.querySelector('#rec-time');
 function formatTime(totalSeconds) {
   const h = Math.floor(totalSeconds / 3600);
@@ -86,7 +91,7 @@ function formatTime(totalSeconds) {
 }
 if (recTimeEl) {
   onScrubTick((state) => {
-    if (state.velocity > 0.3 && Math.random() < state.velocity * 0.5) {
+    if (!state.frozen && state.velocity > 0.3 && Math.random() < state.velocity * 0.5) {
       const jitter = state.timecodeSeconds + (Math.random() - 0.5) * 40 * state.velocity;
       recTimeEl.textContent = formatTime(Math.max(0, jitter));
     } else {
@@ -96,9 +101,9 @@ if (recTimeEl) {
 }
 
 // --- Sektor-Tag folgt der Section im Viewport -------------------------
-// CONCEPT.md §3.2: "Sektor-Tag ändert sich pro Section [...] das
+// CONCEPT.md §6 (Section-Regie): der Sektor-Tag wechselt pro Section, das
 // erzählt nebenbei, dass man durch verschiedene Einsätze/Locations
-// scrollt."
+// scrollt — und zeigt im Footer "SIGNAL END" (§5-Bookend).
 const hudSectorEl = document.querySelector('#hud-sector');
 const sectorSections = document.querySelectorAll('main [data-sector]');
 

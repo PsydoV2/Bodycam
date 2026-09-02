@@ -1,7 +1,7 @@
 /* "Dispatch"-Section für das v0.8 "Locked & Loaded"-Update — bewusst im
    selben Case-File-Ton wie .acquire (Border-Box statt eigene Farbe), damit
    der Akzent (Rot) hier auf den Tag/Countdown fällt statt auf eine zweite
-   Hintergrundfarbe (CONCEPT.md §2: ein einziger Farbakzent). */
+   Hintergrundfarbe (CONCEPT.md §3: ein einziger Farbakzent). */
 .update {
   background: var(--color-base);
   border-top: 1px solid var(--line);
@@ -52,6 +52,41 @@
 
 .update-countdown.is-live .countdown-value {
   color: var(--accent);
+}
+
+/* Ziffernrollen (CONCEPT.md §6): jede Stelle ist ein 1em hohes Fenster,
+   dahinter fährt ein Streifen 0–9 per translateY auf den Zielwert — wie ein
+   mechanischer Bandzähler, der weiterrollt statt umzuspringen. Aufgebaut
+   von countdown.js; ohne JS/unter reduced-motion steht schlicht Text. */
+.countdown-value .roll-digit,
+.countdown-value .roll-sep {
+  display: inline-block;
+  height: 1em;
+  line-height: 1;
+  vertical-align: bottom;
+}
+
+.countdown-value .roll-digit {
+  overflow: hidden;
+}
+
+.countdown-value .roll-strip {
+  display: block;
+  transform: translateY(calc(var(--n, 0) * -1em));
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.15, 1);
+}
+
+.countdown-value .roll-strip i {
+  display: block;
+  height: 1em;
+  font-style: normal;
+}
+
+/* Einrasten beim ersten Erscheinen: längerer, schwererer Lauf, weil die
+   Rollen von Zufallspositionen auf den echten Wert fahren. */
+.update-countdown.is-spinning .roll-strip {
+  transition-duration: 1s;
+  transition-timing-function: cubic-bezier(0.3, 0.9, 0.2, 1);
 }
 
 .update-intro {

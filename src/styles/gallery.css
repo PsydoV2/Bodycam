@@ -12,6 +12,25 @@
   justify-content: center;
   padding: 0 32px;
   overflow: hidden;
+  /* Drag-Scrub (gallery-reel.js): horizontales Ziehen gehört uns,
+     vertikale Touch-Gesten bleiben beim Browser (Seite scrollt normal). */
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.gallery-pin.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gallery-pin.is-dragging .media-frame {
+  pointer-events: none;
+}
+
+/* Der Autofokus-Cursor ersetzt den System-Cursor — dann auch hier. */
+.has-af-cursor:not(.is-cursor-off) .gallery-pin {
+  cursor: none;
 }
 
 .gallery-pin h2 {
@@ -114,6 +133,8 @@
     height: auto;
     overflow: visible;
     padding: 140px 32px;
+    cursor: auto;
+    touch-action: auto;
   }
 
   .gallery-track {
