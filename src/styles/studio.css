@@ -1,11 +1,11 @@
-/* Bewusster Stilbruch (CONCEPT.md §5): ruhiger, weniger HUD, mehr Raum.
+/* Bewusster Stilbruch (CONCEPT.md §6, "unfilmed"): ruhiger, kein HUD, mehr Raum.
    Der Kontrast zu den umliegenden Sections macht diese Section besonders. */
 .studio {
   background: var(--color-surface);
 }
 
 /* Der einzige Bruch mit dem linksbündigen Raster der restlichen Seite
-   (CONCEPT.md §2/§6) — Studio ist der "unfilmed"-Kontrastpunkt, das darf
+   (CONCEPT.md §3/§6) — Studio ist der "unfilmed"-Kontrastpunkt, das darf
    auch räumlich spürbar sein, nicht nur im Fehlen von HUD/Grain. Block
    zentriert, Text darin bleibt linksbündig lesbar (kein zentrierter
    Fließtext — das wäre bei mehrzeiligen Absätzen einfach schlecht lesbar). */

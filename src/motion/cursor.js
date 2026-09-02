@@ -1,7 +1,9 @@
 // Autofokus-Cursor (CONCEPT.md §4.2): Sucherrahmen mit physischem Nachlauf
 // (lerp statt 1:1), schnappt bei Hover über interaktiven Elementen auf ein
-// Autofokus-Bracket. Deaktiviert bei Touch/Coarse-Pointer, reduced-motion
-// und innerhalb der "unfilmed" Studio-Section (§6).
+// Autofokus-Bracket. Deaktiviert bei Touch/Coarse-Pointer, reduced-motion,
+// innerhalb "unfilmed"-Sections (Acquire/Studio, §6) und nach SIGNAL END
+// im Footer (§5) — mehrere Quellen können ihn gleichzeitig unterdrücken,
+// deshalb ein Schlüssel-Set statt eines einzelnen Booleans.
 
 const INTERACTIVE_SELECTOR = 'a, button, input, [role="button"], .mode-header';
 
@@ -52,11 +54,21 @@ export function initCursor({ reducedMotion }) {
     targetScale = target ? 1.7 : 1;
   });
 
-  let disabled = false;
-  /** Wird von main.js beim Betreten/Verlassen der Studio-Section umgeschaltet. */
-  function setDisabled(value) {
-    disabled = value;
-    root.classList.toggle('is-suppressed', value);
+  const suppressors = new Set();
+  /** Unterdrückt den Cursor, solange mindestens ein Schlüssel aktiv ist
+   *  (unfilmed-Sections, Signal-End). */
+  function suppress(key, active) {
+    if (active) suppressors.add(key);
+    else suppressors.delete(key);
+    const off = suppressors.size > 0;
+    root.classList.toggle('is-suppressed', off);
+    document.documentElement.classList.toggle('is-cursor-off', off);
+  }
+
+  /** Drag-Scrub in der Gallery: Rahmen weitet sich zum Transport-Griff. */
+  function setScrubbing(active) {
+    root.classList.toggle('is-scrubbing', active);
+    targetScale = active ? 1.35 : 1;
   }
 
   function loop() {
@@ -70,5 +82,5 @@ export function initCursor({ reducedMotion }) {
   }
   requestAnimationFrame(loop);
 
-  return { setDisabled };
+  return { suppress, setScrubbing };
 }

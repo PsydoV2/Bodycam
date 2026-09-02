@@ -9,6 +9,11 @@
       // Synchron, vor dem ersten Paint: schaltet die Scroll-Reveal-Zustände
       // nur frei, wenn JS tatsächlich läuft — ohne JS bleibt alles sofort sichtbar.
       document.documentElement.classList.add('has-js');
+      // Boot-Sequenz (CONCEPT.md §5): Hero startet unscharf, der Fokus-Pull
+      // in boot.js rastet ihn ein. Unter reduced-motion entfällt das.
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('is-booting');
+      }
     </script>
   </head>
   <body>
@@ -17,6 +22,7 @@
          unter reduced-motion entfernt sie sich sofort. -->
     <div class="boot" id="boot" role="presentation">
       <div class="boot-scan"></div>
+      <div class="boot-bars" aria-hidden="true"><span></span><span></span><span></span></div>
       <div class="boot-text">
         <span class="boot-dot"></span>
         ACQUIRING SIGNAL<span class="boot-ellipsis"></span>
@@ -27,7 +33,7 @@
     <canvas id="overlay-canvas" aria-hidden="true"></canvas>
 
     <div class="hud-overlay" aria-hidden="true">
-      <div class="hud-rec"><span class="dot"></span>REC <span id="rec-time">00:14:52</span></div>
+      <div class="hud-rec"><span class="dot"></span><span class="hud-rec-label">REC</span><span id="rec-time">00:14:52</span></div>
       <div class="hud-batt">UNIT-7 · BATT 74%</div>
       <div class="hud-sector" id="hud-sector">CAM_03 // FOREST SECTOR</div>
     </div>
@@ -56,7 +62,7 @@
         </div>
       </section>
 
-      <section class="acquire" id="acquire" data-sector="STEAM UPLINK">
+      <section class="acquire" id="acquire" data-sector="STEAM UPLINK" data-unfilmed>
         <div class="section-inner">
           <div class="acquire-tag">CASE_FILE // AVAILABLE NOW</div>
           <iframe
@@ -74,7 +80,16 @@
 
           <div class="update-head">
             <h2 data-decode>Everything you know is getting rebuilt.</h2>
-            <div class="update-countdown" id="update-countdown" aria-live="polite">
+            <!-- Zielzeitpunkt des Updates (UTC). Der Dispatch nennt nur den
+                 2. September 2026 ohne Uhrzeit; 17:00 UTC ist die übliche
+                 Steam-Release-Zeit (10:00 PT) und hier eine Annahme —
+                 anpassen, sobald die Uhrzeit bekannt ist. -->
+            <div
+              class="update-countdown"
+              id="update-countdown"
+              data-target="2026-09-02T17:00:00Z"
+              data-live-label="LIVE NOW · FREE UPDATE"
+            >
               <span class="countdown-label">T-MINUS · FREE UPDATE</span>
               <span class="countdown-value" id="countdown-value">--d --:--:--</span>
             </div>
@@ -343,7 +358,7 @@
         </div>
       </section>
 
-      <section class="studio" id="studio" data-sector="OFF THE RECORD">
+      <section class="studio" id="studio" data-sector="OFF THE RECORD" data-unfilmed>
         <div class="section-inner">
           <h2>Reissad Studio</h2>
           <p>

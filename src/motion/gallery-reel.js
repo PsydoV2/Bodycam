@@ -4,10 +4,13 @@
 // wortwörtlich durch aufgenommenes Material spult. Zweiter Höhepunkt der
 // Seite. Jedes Medienelement bekommt seinen eigenen Video/Bild-Shader.
 
-import { gsap, ScrollTrigger, scrubState } from './scroll-engine.js';
+import { gsap, ScrollTrigger, scrubState, getLenis, pushVelocity } from './scroll-engine.js';
 import { ScrubShader } from './scrub-shader.js';
 
-export function initGalleryReel({ reducedMotion }) {
+const DRAG_VELOCITY_SCALE = 1.6; // px/ms -> 0..1, grob wie ein zügiger Wheel-Scroll
+const DRAG_THRESHOLD_PX = 4; // ab hier gilt ein Pointer-Down als Ziehen, nicht als Klick
+
+export function initGalleryReel({ reducedMotion, cursor }) {
   const section = document.querySelector('#gallery');
   const pin = document.querySelector('.gallery-pin');
   const track = document.querySelector('.gallery-track');
@@ -100,6 +103,89 @@ export function initGalleryReel({ reducedMotion }) {
     scrub: 0.8,
     invalidateOnRefresh: true,
   });
+
+  // --- Drag-Scrub (CONCEPT.md §5/§6): Ziehen an der Filmrolle ------------
+  // Horizontales Ziehen wird direkt in Scroll-Position übersetzt, damit
+  // Drag und Scroll denselben Timecode bewegen — es gibt nur EINE Position
+  // im Band, keine zweite, parallel geführte Drag-Koordinate. Die
+  // Zieh-Geschwindigkeit speist dieselbe Velocity wie der Scroll, also
+  // reagieren Shader und HUD-Zähler beim Ziehen genauso wie beim Spulen.
+  const lenis = getLenis();
+  let dragging = false;
+  let pointerId = null;
+  let startX = 0;
+  let startScroll = 0;
+  let lastX = 0;
+  let lastT = 0;
+  let moved = false;
+
+  function scrollRatio() {
+    const distance = getScrollDistance();
+    return distance > 0 ? (st.end - st.start) / distance : 1;
+  }
+
+  function scrollToImmediate(y) {
+    const clamped = Math.min(Math.max(y, st.start), st.end);
+    if (lenis) lenis.scrollTo(clamped, { immediate: true, force: true });
+    else window.scrollTo(0, clamped);
+    ScrollTrigger.update();
+  }
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    if (pointerId !== null && pin.hasPointerCapture?.(pointerId)) pin.releasePointerCapture(pointerId);
+    pointerId = null;
+    pin.classList.remove('is-dragging');
+    cursor?.setScrubbing(false);
+  }
+
+  pin.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || !st.isActive) return;
+    dragging = true;
+    moved = false;
+    pointerId = e.pointerId;
+    startX = e.clientX;
+    lastX = e.clientX;
+    lastT = performance.now();
+    startScroll = window.scrollY;
+    pin.setPointerCapture?.(e.pointerId);
+    pin.classList.add('is-dragging');
+    cursor?.setScrubbing(true);
+  });
+
+  pin.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (!moved && Math.abs(dx) < DRAG_THRESHOLD_PX) return;
+    moved = true;
+    e.preventDefault();
+
+    scrollToImmediate(startScroll - dx * scrollRatio());
+
+    const now = performance.now();
+    const dt = Math.max(1, now - lastT);
+    pushVelocity((Math.abs(e.clientX - lastX) / dt) / DRAG_VELOCITY_SCALE);
+    lastX = e.clientX;
+    lastT = now;
+  });
+
+  pin.addEventListener('pointerup', endDrag);
+  pin.addEventListener('pointercancel', endDrag);
+  window.addEventListener('blur', endDrag);
+
+  // Ein Klick, der in Wirklichkeit ein Ziehen war, soll nichts auslösen.
+  pin.addEventListener(
+    'click',
+    (e) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    },
+    true,
+  );
 
   return {
     destroy: () => {

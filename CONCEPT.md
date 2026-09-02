@@ -81,7 +81,7 @@ Unverändert aus dem Bildmaterial abgeleitet (verbrannter Wald, Sandfarben Train
 
 ### 4.1 Der Scrub-Mechanismus (Herzstück)
 
-Ein Fullscreen-WebGL-Shader-Layer (siehe §9 — OGL, kein Three.js) liegt über allen Video-/Bildflächen der gefilmten Sections. Seine Uniforms werden live aus der Scroll-Geschwindigkeit gespeist (via Lenis/ScrollTrigger, §5):
+Ein Fullscreen-WebGL-Shader-Layer (siehe §9 — rohes WebGL, kein Three.js) liegt über allen Video-/Bildflächen der gefilmten Sections. Seine Uniforms werden live aus der Scroll-Geschwindigkeit gespeist (via Lenis/ScrollTrigger, §5):
 
 - **Grain-Intensität** — Baseline ~5 % wie in v1, steigt mit Scrub-Geschwindigkeit
 - **Chromatic-Aberration-Spread** — Kanäle laufen bei schnellem Scrub sichtbar auseinander (Glitch-Warm/-Kalt, §3)
@@ -90,7 +90,7 @@ Ein Fullscreen-WebGL-Shader-Layer (siehe §9 — OGL, kein Three.js) liegt über
 
 Bei Stillstand: sauberes, ruhiges Bild, keine Artefakte — die Disziplin aus v1 bleibt, nur ist der ruhige Zustand jetzt der *Default*, kein Dauerzustand ohne Gegenpol.
 
-**Fallback:** kein WebGL verfügbar oder `prefers-reduced-motion` → statischer CSS-Vignette+Grain-Zustand wie in v1. Der bestehende `prototype.html`-Ansatz wird dadurch nicht obsolet, sondern zur offiziellen Fallback-Referenz (§10).
+**Fallback:** kein WebGL verfügbar oder `prefers-reduced-motion` → statischer CSS-Vignette+Grain-Zustand wie in v1. Der bestehende `prototyp/prototype.html`-Ansatz wird dadurch nicht obsolet, sondern zur offiziellen Fallback-Referenz (§10).
 
 **Präzisierung nach erstem Rollout:** Tracking-Bars sind ein Band-Scrub-Artefakt und bleiben exklusiv den Video-Shadern vorbehalten (Hero, Gallery — dort liegt tatsächlich Aufnahme-Material vor). Der seitenweite Overlay-Layer über Fließtext-Sections (Lens, Modes, Update, ...) zeigt nur die Grain-Baseline, keine Tracking-Bars — über reinem UI/Text sahen sie wie ein Rendering-Fehler aus, nicht wie Teil einer Aufnahme.
 
@@ -175,7 +175,7 @@ War in v1 bewusst offen. Jetzt final, weil der Umfang (Shader, Scrub-Timelines, 
 - **Vite + Vanilla JS** — kein Framework, die Seite bleibt eine primär visuelle Single-Page ohne nennenswerten App-State
 - **Lenis** — Smooth Scroll, Basis für alles Weitere
 - **GSAP + ScrollTrigger** — treibt Pin/Scrub-Timelines *und* die Shader-Uniforms aus §4.1
-- **OGL** statt Three.js — es gibt kein 3D-Geometrie-Objekt mehr zu rendern (§4.3), nur einen Fullscreen-Shader-Quad. Three.js wäre hier reiner Overhead für Features, die nicht gebraucht werden.
+- **Rohes WebGL, keine Render-Bibliothek** — es gibt kein 3D-Geometrie-Objekt mehr zu rendern (§4.3), nur einen Fullscreen-Shader-Quad. Three.js wäre hier reiner Overhead für Features, die nicht gebraucht werden. Ursprünglich war OGL als schlanker Mittelweg vorgesehen; in der Umsetzung hat sich gezeigt, dass zwei Fullscreen-Quads mit je einem Programm (`scrub-shader.js`, `overlay-shader.js`) in ~150 Zeilen direktem WebGL sauberer sind als eine weitere Abhängigkeit — Entscheidung: bleibt so.
 - **Web Audio API nativ** — kein zusätzliches Sound-Lib nötig für Loop + Gain-Swell (§4.4)
 
 Damit entfällt auch der v1-Plan für ein GLB-Waffenmodell vollständig (§4.3).
@@ -191,7 +191,9 @@ Damit entfällt auch der v1-Plan für ein GLB-Waffenmodell vollständig (§4.3).
 
 ## 10. Referenz-Prototyp
 
-`prototype.html` zeigt weiterhin den v1-Hero-Ansatz (Video-Loop, HUD, CSS-Vignette, Grain, Typografie) — jetzt offiziell als **Fallback-Referenz für §4.1** (kein WebGL/reduced-motion), nicht mehr als Zielbild für den Live-Zustand mit Shader.
+`prototyp/prototype.html` zeigt weiterhin den v1-Hero-Ansatz (Video-Loop, HUD, CSS-Vignette, Grain, Typografie) — jetzt offiziell als **Fallback-Referenz für §4.1** (kein WebGL/reduced-motion), nicht mehr als Zielbild für den Live-Zustand mit Shader.
+
+`prototyp/prototype-scrub.html` ist der Spike für den Scrub-Shader selbst (§4.1) — Standalone-Seite ohne Build, auf der sich Grain/CA/Tracking-Bars an einem gepinnten Hero beliebig lang an- und abscrubben lassen. Die Produktivfassung in `src/motion/scrub-shader.js` ist daraus generalisiert.
 
 ---
 

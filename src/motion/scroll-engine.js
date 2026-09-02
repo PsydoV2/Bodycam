@@ -24,6 +24,7 @@ const VELOCITY_NORMALIZER = 2.2; // Lenis-Velocity-Einheiten -> 0..1
 export const scrubState = {
   velocity: 0, // geglättet, 0..1 — treibt Shader/HUD/Cursor
   timecodeSeconds: BASE_SECONDS,
+  frozen: false, // Signal-End-Bookend (§5): Timecode friert im Footer ein
   reducedMotion: prefersReducedMotion,
 };
 
@@ -45,6 +46,19 @@ export function triggerBurst(strength = 0.85, durationMs = 550) {
   burstUntil = performance.now() + durationMs;
 }
 
+/** Speist rohe Velocity von außen ein — Drag-Scrub in der Gallery (§5/§6),
+ *  damit Ziehen an der Filmrolle denselben Mechanismus füttert wie Scrollen. */
+export function pushVelocity(value) {
+  if (prefersReducedMotion) return;
+  rawVelocity = Math.max(rawVelocity, Math.min(Math.max(value, 0), 1));
+}
+
+/** Signal-End-Bookend (§5): friert den Timecode ein, statt ihn weiter an
+ *  die Scroll-Position zu koppeln — der Zähler steht, wie nach STOP. */
+export function freezeTimecode(value) {
+  scrubState.frozen = Boolean(value);
+}
+
 let lastFrameT = null;
 function tick(nowMs) {
   const now = nowMs * 0.001;
@@ -60,7 +74,9 @@ function tick(nowMs) {
     if (scrubState.velocity < 0.001) scrubState.velocity = 0;
   }
 
-  scrubState.timecodeSeconds = BASE_SECONDS + Math.max(0, window.scrollY) / PX_PER_SECOND;
+  if (!scrubState.frozen) {
+    scrubState.timecodeSeconds = BASE_SECONDS + Math.max(0, window.scrollY) / PX_PER_SECOND;
+  }
 
   listeners.forEach((fn) => fn(scrubState));
   requestAnimationFrame(tick);

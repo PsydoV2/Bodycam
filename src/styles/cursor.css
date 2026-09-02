@@ -1,11 +1,12 @@
 /* Autofokus-Cursor (CONCEPT.md §4.2) — Sucherrahmen mit Autofokus-Bracket,
    ersetzt den System-Cursor nur wenn aktiv (Maus, kein reduced-motion,
-   nicht innerhalb der "unfilmed" Studio-Section). */
+   nicht in "unfilmed"-Sections und nicht nach SIGNAL END — cursor.js
+   setzt dafür is-cursor-off). */
 .has-af-cursor {
   cursor: none;
 }
 
-.has-af-cursor.is-unfilmed {
+.has-af-cursor.is-cursor-off {
   cursor: auto;
 }
 
@@ -87,4 +88,11 @@
 
 .af-cursor.is-focused .af-dot {
   opacity: 0;
+}
+
+/* Drag-Scrub in der Gallery: Rahmen weitet sich zum Transport-Griff,
+   Punkt bleibt als Referenz für die Bandposition sichtbar. */
+.af-cursor.is-scrubbing .af-corner {
+  width: 12px;
+  height: 12px;
 }

@@ -16,7 +16,8 @@ body {
   font-family: var(--font-display);
 }
 
-/* Dezentes Noise-Overlay über der ganzen Seite (CONCEPT.md §3.3) —
+/* Dezentes Noise-Overlay über der ganzen Seite (CSS-Fallback für den
+   Overlay-Shader, CONCEPT.md §4.1) —
    nicht nur über Videos, damit sich auch Textflächen nicht "sauber
    digital" anfühlen. */
 .grain {
@@ -40,9 +41,11 @@ body {
   height: 100%;
 }
 
-/* Studio-Section ist bewusst komplett "unfilmed" (CONCEPT.md §6) — auch
-   der CSS-Grain-Fallback fährt hier runter, nicht nur der WebGL-Layer. */
-.is-unfilmed .grain {
+/* "Unfilmed"-Sections (Acquire/Studio, CONCEPT.md §6) und Signal-End im
+   Footer (§5): auch der CSS-Grain-Fallback fährt runter, nicht nur der
+   WebGL-Layer. */
+.is-unfilmed .grain,
+.is-signal-end .grain {
   opacity: 0;
 }
 
@@ -71,7 +74,7 @@ html {
   background-color: var(--accent);
 }
 
-/* CONCEPT.md §4: Animation soll etwas erklären/bestätigen, nicht
+/* CONCEPT.md §5 (Reduced-Motion-Vertrag): Animation soll etwas erklären/bestätigen, nicht
    dekorieren — wer reduzierte Bewegung bevorzugt, bekommt sie ganz
    abgeschaltet statt nur verlangsamt. */
 @media (prefers-reduced-motion: reduce) {

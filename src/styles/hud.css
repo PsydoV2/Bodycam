@@ -1,7 +1,8 @@
-/* Durchgehendes HUD-Overlay (CONCEPT.md §3.2) — bleibt über die ganze
-   Seite fix im Bild, nicht nur im Hero. Der Sektor-Tag wechselt per JS
-   je nach Section im Viewport (main.js), das erzählt nebenbei, dass man
-   durch verschiedene Einsätze/Locations scrollt. */
+/* Durchgehendes HUD-Overlay (CONCEPT.md §4.1/§6) — bleibt über die
+   gefilmten Sections fix im Bild. Der Sektor-Tag wechselt per JS je nach
+   Section im Viewport (main.js), das erzählt nebenbei, dass man durch
+   verschiedene Einsätze/Locations scrollt. In "unfilmed"-Sections (§6)
+   ist der ganze Apparat aus, also auch das HUD. */
 .hud-overlay {
   position: fixed;
   inset: 0;
@@ -10,21 +11,38 @@
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.5px;
+  transition: opacity 0.35s ease;
 }
 
+.is-unfilmed .hud-overlay {
+  opacity: 0;
+}
+
+/* Signal-End (§5) hat Vorrang: im Footer soll man den Apparat sichtbar
+   herunterfahren sehen — auch wenn die Studio-Section darüber auf kleinen
+   Viewports noch mit im Bild steht. */
+.is-signal-end .hud-overlay {
+  opacity: 1;
+}
+
+/* REC und BATT sitzen direkt auf dem Bild — kein Hintergrundkasten, wie
+   bei einem echten Kamera-Overlay. Ein weicher Schatten hält den Text auf
+   hellen Frames lesbar, ohne eine Fläche zu bilden. */
 .hud-rec {
   position: absolute;
-  top: 22px;
+  top: 28px;
   left: 32px;
   display: flex;
   align-items: center;
   color: var(--accent);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  background: rgba(8, 9, 10, 0.5);
-  backdrop-filter: blur(3px);
-  padding: 6px 10px;
-  border-radius: 2px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.75);
+  transition: color 0.4s ease;
+}
+
+.hud-rec-label {
+  margin-right: 0.6ch;
 }
 
 .hud-rec .dot {
@@ -48,14 +66,11 @@
 
 .hud-batt {
   position: absolute;
-  top: 22px;
+  top: 28px;
   right: 32px;
   color: var(--text-muted);
   white-space: nowrap;
-  background: rgba(8, 9, 10, 0.5);
-  backdrop-filter: blur(3px);
-  padding: 6px 10px;
-  border-radius: 2px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.75);
 }
 
 .hud-sector {
@@ -73,4 +88,21 @@
 
 .hud-sector.is-switching {
   opacity: 0;
+}
+
+/* Signal-End-Bookend (CONCEPT.md §5): Aufnahme gestoppt — der REC-Punkt
+   hört auf zu pulsen und der eingefrorene Zähler steht in gedämpftem
+   Weiß statt Rot. Der Sektor-Tag zeigt in diesem Moment "SIGNAL END". */
+.is-signal-end .hud-rec {
+  color: var(--text-muted);
+}
+
+.is-signal-end .hud-rec-label {
+  margin-right: 0.6ch;
+}
+
+.hud-rec .dot {
+  animation: none;
+  background: var(--text-muted);
+  opacity: 0.5;
 }
