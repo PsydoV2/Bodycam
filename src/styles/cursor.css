@@ -79,6 +79,24 @@
   transition: opacity 0.2s ease;
 }
 
+/* Fokus-Pull (CONCEPT.md §4.2): beim Einrasten auf ein neues Ziel zieht
+   der Rahmen kurz von unscharf auf scharf — cursor.js startet die
+   Animation pro neuem Ziel neu. */
+.af-cursor.is-pulling {
+  animation: af-pull 0.28s ease-out;
+}
+
+@keyframes af-pull {
+  0% {
+    filter: blur(3px);
+    opacity: 0.6;
+  }
+  100% {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
 /* Bei Hover über Interaktivem "rastet" der Rahmen ein — kleiner, fester
    Fokus statt lockerem Sucherquadrat, wie eine Autofokus-Bestätigung. */
 .af-cursor.is-focused .af-corner {

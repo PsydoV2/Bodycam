@@ -22,10 +22,14 @@ const RAW_DECAY_RATE = 7; // 1/s — wie schnell ein einzelner Scroll-Spike verp
 const VELOCITY_NORMALIZER = 2.2; // Lenis-Velocity-Einheiten -> 0..1
 
 export const scrubState = {
-  velocity: 0, // geglättet, 0..1 — treibt Shader/HUD/Cursor
+  velocity: 0, // geglättet, 0..1 — treibt Shader/HUD/Cursor/Video-Rate/Sound
   timecodeSeconds: BASE_SECONDS,
+  baseSeconds: BASE_SECONDS,
   frozen: false, // Signal-End-Bookend (§5): Timecode friert im Footer ein
   reducedMotion: prefersReducedMotion,
+  // Session-Statistik fürs Log beim SIGNAL END (hud-alive.js)
+  peakVelocity: 0,
+  maxTimecodeSeconds: BASE_SECONDS,
 };
 
 let rawVelocity = 0;
@@ -77,6 +81,8 @@ function tick(nowMs) {
   if (!scrubState.frozen) {
     scrubState.timecodeSeconds = BASE_SECONDS + Math.max(0, window.scrollY) / PX_PER_SECOND;
   }
+  if (scrubState.velocity > scrubState.peakVelocity) scrubState.peakVelocity = scrubState.velocity;
+  if (scrubState.timecodeSeconds > scrubState.maxTimecodeSeconds) scrubState.maxTimecodeSeconds = scrubState.timecodeSeconds;
 
   listeners.forEach((fn) => fn(scrubState));
   requestAnimationFrame(tick);

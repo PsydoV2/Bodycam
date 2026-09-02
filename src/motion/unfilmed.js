@@ -5,7 +5,7 @@
 // Setzt eine Klasse auf <html>, über die CSS HUD- und Cursor-Sichtbarkeit
 // steuert; der Overlay-Grain wird zentral über den Suppressor gedämpft.
 
-export function initUnfilmed({ cursor, suppressor }) {
+export function initUnfilmed({ cursor, suppressor, sound }) {
   const sections = document.querySelectorAll('[data-unfilmed]');
   if (!sections.length) return;
 
@@ -15,6 +15,7 @@ export function initUnfilmed({ cursor, suppressor }) {
     const isUnfilmed = active.size > 0;
     document.documentElement.classList.toggle('is-unfilmed', isUnfilmed);
     cursor?.suppress('unfilmed', isUnfilmed);
+    sound?.mute('unfilmed', isUnfilmed);
   }
 
   const observer = new IntersectionObserver(

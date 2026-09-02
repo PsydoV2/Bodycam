@@ -12,6 +12,7 @@ import './styles/modes.css';
 import './styles/gallery.css';
 import './styles/studio.css';
 import './styles/footer.css';
+import './styles/responsive.css';
 
 import { initScrollEngine, scrubState, onScrubTick, prefersReducedMotion, ScrollTrigger } from './motion/scroll-engine.js';
 import { OverlayShader } from './motion/overlay-shader.js';
@@ -25,12 +26,18 @@ import { initUnfilmed } from './motion/unfilmed.js';
 import { initSignalEnd } from './motion/signal-end.js';
 import { initCountdown } from './motion/countdown.js';
 import { initChapterTransitions } from './motion/chapter-transitions.js';
+import { initSound } from './motion/sound.js';
+import { initModesFeed } from './motion/modes-feed.js';
+import { initHudAlive } from './motion/hud-alive.js';
 
 const reducedMotion = prefersReducedMotion;
 
 // --- Motion-Fundament (CONCEPT.md §9, Schritt 1) ------------------------
 initScrollEngine();
 const cursor = initCursor({ reducedMotion });
+const sound = initSound(); // §4.4 — opt-in, baut erst beim Klick einen AudioContext
+const hud = initHudAlive();
+cursor?.onFocus(() => sound?.tick());
 
 // --- Seitenweite Atmosphäre-Schicht (§4.1) — ersetzt das alte statische
 //     .grain-Div, sobald WebGL verfügbar ist.
@@ -53,9 +60,10 @@ suppressor.watch(document.querySelector('#gallery'), 'gallery');
 // eigenes Pin-Modul mehr nötig, dafür auch keine Pin-Spacer-Reihenfolge
 // mehr zu beachten.
 initHero({ reducedMotion });
-const gallery = initGalleryReel({ reducedMotion, cursor });
-initUnfilmed({ cursor, suppressor }); // Acquire + Studio (§6)
-initSignalEnd({ cursor, suppressor, reducedMotion }); // Footer-Bookend (§5)
+const gallery = initGalleryReel({ reducedMotion, cursor, sound });
+initModesFeed({ reducedMotion }); // Preview-Feed neben der Mode-Liste
+initUnfilmed({ cursor, suppressor, sound }); // Acquire + Studio (§6)
+initSignalEnd({ cursor, suppressor, sound, hud, reducedMotion }); // Footer-Bookend (§5)
 initCountdown({ reducedMotion }); // Dispatch-Bandzähler (§6)
 initChapterTransitions();
 initDecodeText({ reducedMotion });

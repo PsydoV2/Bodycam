@@ -1,0 +1,162 @@
+/* Mobile-Pass — an einem Ort statt verstreut in den Section-Styles.
+   Grundregel: alles, was oben in px steht, bekommt hier auf kleinen
+   Viewports eine fluide Entsprechung. Desktop-Werte bleiben unverändert
+   (die clamp()-Obergrenzen entsprechen exakt den bisherigen px-Werten). */
+
+:root {
+  --gutter: clamp(20px, 4vw, 32px);
+  --section-pad: clamp(72px, 12vw, 140px);
+}
+
+.section-inner {
+  padding: var(--section-pad) var(--gutter);
+}
+
+main h2 {
+  font-size: clamp(26px, 4.4vw, 34px);
+}
+
+/* Hero: dvh statt vh, sonst ragt die mobile Adressleiste ins Bild. */
+.hero {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.hero-content {
+  padding: 0 var(--gutter) clamp(48px, 8vw, 64px);
+}
+
+.hero h1 {
+  font-size: clamp(34px, 7vw, 52px);
+}
+
+.hero .sub {
+  font-size: clamp(15px, 2.2vw, 16px);
+}
+
+.hud-rec,
+.hud-sector {
+  left: var(--gutter);
+}
+
+.hud-top-right {
+  right: var(--gutter);
+}
+
+.scroll-hint {
+  right: var(--gutter);
+}
+
+.gallery-pin {
+  height: 100vh;
+  height: 100dvh;
+  padding: 0 var(--gutter);
+}
+
+@media (max-width: 640px) {
+  .cta-row {
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 18px;
+  }
+
+  /* HUD: "UNIT-7 ·" braucht auf 360px keinen Platz neben dem Audio-Chip. */
+  .hud-batt .hud-unit {
+    display: none;
+  }
+
+  .hud-sector {
+    bottom: 20px;
+  }
+
+  .scroll-hint {
+    display: none;
+  }
+
+  .log-entry {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .log-index {
+    width: auto;
+  }
+
+  .mode-header {
+    gap: 14px;
+    padding: 18px 0;
+  }
+
+  .mode-id {
+    width: 56px;
+  }
+
+  .mode-name {
+    font-size: 17px;
+  }
+
+  .mode-brief {
+    padding-left: 0;
+  }
+
+  /* Hochkant statt 16:9 — sonst stehen auf einem Handy drei winzige
+     Streifen in einer viewporthohen Pin-Section. Der Shader beschneidet
+     die Quelle wie object-fit: cover (coverScale in scrub-shader.js). */
+  .media-frame {
+    width: min(78vw, 920px);
+    aspect-ratio: 4 / 5;
+  }
+
+  .gallery-hint {
+    margin-bottom: 24px;
+  }
+
+  .update-quote {
+    font-size: 16px;
+  }
+
+  .countdown-value {
+    font-size: 19px;
+  }
+
+  .studio .section-inner {
+    padding-top: var(--section-pad);
+    padding-bottom: var(--section-pad);
+  }
+
+  .studio p {
+    font-size: 16px;
+  }
+
+  .social-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .newsletter-row {
+    flex-wrap: wrap;
+  }
+
+  .newsletter-row input {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+
+  .session-log {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Touch: kein Hover-Zustand, der hängen bleibt, und der Drag-Griff-Cursor
+   ergibt ohne Maus keinen Sinn. */
+@media (pointer: coarse) {
+  .gallery-pin,
+  .gallery-pin.is-dragging {
+    cursor: auto;
+  }
+
+  .mode-header:hover {
+    background: none;
+  }
+}
