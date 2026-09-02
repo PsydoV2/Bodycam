@@ -207,4 +207,9 @@
   color: var(--text-muted);
   writing-mode: vertical-rl;
   letter-spacing: 2px;
+  transition: opacity 0.4s ease;
+}
+
+.scroll-hint.is-hidden {
+  opacity: 0;
 }

@@ -4,18 +4,29 @@
 // Caption dekodiert. Bewusst nicht auf Fließtext/Nav angewendet.
 
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#_/·';
-const REVEAL_STEP_MS = 28; // Zeit pro "Spalte", die sich final setzt
+const FRAME_MS = 1000 / 60; // Zeitbasis: ein "Frame" der Choreografie = 16,7 ms,
+// unabhängig von der echten Bildrate (120-Hz-Displays dekodieren sonst
+// doppelt so schnell, gedrosselte Tabs kriechen).
 
 class TextScramble {
   constructor(el) {
     this.el = el;
-    this.finalText = el.textContent;
+    // Originaltext einmal am Element merken: läuft play() ein zweites Mal,
+    // während noch dekodiert wird, darf der halb-verwürfelte Zwischenstand
+    // nie zum "finalen" Text werden.
+    if (!el.dataset.decodeText) el.dataset.decodeText = el.textContent;
+    this.finalText = el.dataset.decodeText;
     this.frame = 0;
     this.queue = [];
     this.raf = null;
   }
 
   play() {
+    // Laufende Instanz am selben Element stoppen (sonst schreiben zwei
+    // rAF-Loops abwechselnd in dasselbe Element).
+    this.el._scramble?.cancel();
+    this.el._scramble = this;
+
     const chars = this.finalText.split('');
     this.el.textContent = '';
     this.el.setAttribute('aria-label', this.finalText);
@@ -34,12 +45,21 @@ class TextScramble {
     });
 
     this.frame = 0;
+    this._lastT = null;
     cancelAnimationFrame(this.raf);
     this._update = this._update.bind(this);
     this.raf = requestAnimationFrame(this._update);
   }
 
-  _update() {
+  cancel() {
+    cancelAnimationFrame(this.raf);
+    this.raf = null;
+  }
+
+  _update(now) {
+    const dt = this._lastT === null ? FRAME_MS : Math.min(now - this._lastT, 250);
+    this._lastT = now;
+
     let output = '';
     let complete = 0;
 
@@ -64,20 +84,24 @@ class TextScramble {
     if (complete === this.queue.length) {
       this.el.textContent = this.finalText;
       this.el.classList.remove('is-decoding');
+      this.el._scramble = null;
       return;
     }
-    this.frame += 1;
+    this.frame += dt / FRAME_MS;
     this.raf = requestAnimationFrame(this._update);
   }
 }
 
 /**
  * Aktiviert Decode-in für alle [data-decode]-Elemente, sobald sie ins
- * Viewport scrollen (einmalig). Unter reduced-motion wird sofort der
- * finale Text gezeigt, kein Scramble.
+ * Viewport scrollen (einmalig). Elemente mit [data-decode-manual] (Hero-
+ * Titel, spielt nach der Boot-Sequenz via decodeNow) werden hier bewusst
+ * übersprungen — sonst dekodiert der Titel zweimal, und wer den Boot per
+ * Klick überspringt, bekam die zweite Runde auf halb-verwürfeltem Text.
+ * Unter reduced-motion wird sofort der finale Text gezeigt, kein Scramble.
  */
 export function initDecodeText({ reducedMotion }) {
-  const els = document.querySelectorAll('[data-decode]');
+  const els = document.querySelectorAll('[data-decode]:not([data-decode-manual])');
   if (!els.length) return;
 
   if (reducedMotion) return; // finaler Text steht bereits im Markup

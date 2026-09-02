@@ -36,6 +36,15 @@ export function initBoot({ reducedMotion }) {
     };
 
     bootEl.addEventListener('click', finish, { once: true });
+    // Überspringbar auch per Tastatur (§5: "überspringbar" gilt nicht nur
+    // für Maus-Nutzer).
+    const onKey = (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+        window.removeEventListener('keydown', onKey);
+        finish();
+      }
+    };
+    window.addEventListener('keydown', onKey);
     // Untere Grenze fürs Gefühl von "etwas passiert", obere Grenze aus §5:
     // unter 1,5 s, danach automatisch weiter.
     setTimeout(finish, 1300);

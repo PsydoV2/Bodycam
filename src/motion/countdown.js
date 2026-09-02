@@ -83,7 +83,6 @@ export function initCountdown({ reducedMotion }) {
       valueEl.appendChild(sep);
     }
   });
-  valueEl.setAttribute('aria-hidden', 'false');
   valueEl.querySelectorAll('.roll-digit, .roll-sep').forEach((el) => el.setAttribute('aria-hidden', 'true'));
 
   function setStrips(text) {

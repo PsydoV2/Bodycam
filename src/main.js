@@ -104,34 +104,57 @@ if (recTimeEl) {
 // CONCEPT.md §6 (Section-Regie): der Sektor-Tag wechselt pro Section, das
 // erzählt nebenbei, dass man durch verschiedene Einsätze/Locations
 // scrollt — und zeigt im Footer "SIGNAL END" (§5-Bookend).
+//
+// Hit-Test in der Viewport-Mitte statt IntersectionObserver-Ratio: die
+// Ratio-Variante erreichte bei Sections, die höher als der Viewport sind,
+// nie ihren Schwellwert — die gepinnte Gallery (mehrere Viewporthöhen
+// Spacer) bekam so nie ihr "FIELD ARCHIVE". elementFromPoint sieht die
+// gepinnte (position:fixed) Filmrolle als das, was sie ist: Teil der
+// Gallery-Section. Läuft nur, wenn sich die Scroll-Position geändert hat.
 const hudSectorEl = document.querySelector('#hud-sector');
-const sectorSections = document.querySelectorAll('main [data-sector]');
 
-if (hudSectorEl && sectorSections.length) {
-  const sectorObserver = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
+if (hudSectorEl) {
+  let switchTimer = null;
+  let lastScrollY = null;
 
-      const nextSector = visible.target.dataset.sector;
-      if (hudSectorEl.dataset.current === nextSector) return;
-      hudSectorEl.dataset.current = nextSector;
+  const setSector = (nextSector) => {
+    if (hudSectorEl.dataset.current === nextSector) return;
+    hudSectorEl.dataset.current = nextSector;
 
-      if (reducedMotion) {
-        hudSectorEl.textContent = `CAM_03 // ${nextSector}`;
-        return;
-      }
-      hudSectorEl.classList.add('is-switching');
-      setTimeout(() => {
-        hudSectorEl.textContent = `CAM_03 // ${nextSector}`;
-        hudSectorEl.classList.remove('is-switching');
-      }, 180);
-    },
-    { threshold: [0.3, 0.5, 0.7] },
-  );
-  sectorSections.forEach((section) => sectorObserver.observe(section));
+    if (reducedMotion) {
+      hudSectorEl.textContent = `CAM_03 // ${nextSector}`;
+      return;
+    }
+    clearTimeout(switchTimer);
+    hudSectorEl.classList.add('is-switching');
+    switchTimer = setTimeout(() => {
+      hudSectorEl.textContent = `CAM_03 // ${nextSector}`;
+      hudSectorEl.classList.remove('is-switching');
+    }, 180);
+  };
+
+  onScrubTick(() => {
+    if (window.scrollY === lastScrollY) return;
+    lastScrollY = window.scrollY;
+    // Boot-Overlay/Cursor/HUD sind pointer-events:none bzw. temporär —
+    // closest() liefert dann null, und der Tag bleibt einfach stehen.
+    const hit = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+    const section = hit?.closest?.('[data-sector]');
+    if (section) setSector(section.dataset.sector);
+  });
+}
+
+// --- Scroll-Hinweis im Hero: nach dem ersten Scrub ausblenden -----------
+// Wer schon spult, braucht die Aufforderung nicht mehr — sie stünde sonst
+// dauerhaft neben dem Sektor-Tag.
+const scrollHint = document.querySelector('.scroll-hint');
+if (scrollHint) {
+  const offHint = onScrubTick(() => {
+    if (window.scrollY > 40) {
+      scrollHint.classList.add('is-hidden');
+      offHint();
+    }
+  });
 }
 
 // --- Scroll-Reveal für Log-/Mode-Einträge ------------------------------

@@ -12,7 +12,9 @@ export function initHero({ reducedMotion }) {
   if (!heroEl) return;
 
   if (!reducedMotion && video && canvas) {
-    const shader = new ScrubShader(canvas, video, () => scrubState.velocity, { baseGrain: 0.05 });
+    // maxDpr 1.5 statt 2: das Quellvideo ist 1080p, Grain/CA brauchen keine
+    // Retina-Schärfe — auf 4K-Displays spart das ~44 % Fragment-Arbeit.
+    const shader = new ScrubShader(canvas, video, () => scrubState.velocity, { baseGrain: 0.05, maxDpr: 1.5 });
     heroEl.classList.add(shader.ok ? 'is-shaded' : 'is-fallback');
 
     video.play().catch(() => {
