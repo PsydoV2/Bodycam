@@ -12,14 +12,9 @@
     <meta name="robots" content="index, follow" />
     <title>Bodycam — See combat through the lens.</title>
 
-    <!-- Social Preview + SEO — %VITE_SITE_URL% kommt aus .env / .env.local
-         (leer = relative URLs; für Discord/X/Facebook und JSON-LD braucht
-         es die absolute Domain). Der Canonical-Link sowie robots.txt/
-         sitemap.xml werden von vite.config.js aus derselben Variable
-         erzeugt statt hier als %VITE_SITE_URL%-Platzhalter zu stehen —
-         Vites Asset-URL-Resolver liest ein <link href="/"> (leere
-         VITE_SITE_URL) sonst als Pfad zum Projektroot und bricht den
-         Build mit EISDIR ab. -->
+    <!-- Social Preview + SEO — feste Domain, siehe SITE_URL in
+         vite.config.js (dieselbe Konstante generiert dort Canonical-Link,
+         robots.txt und sitemap.xml). -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Bodycam" />
     <meta property="og:title" content="Bodycam — See combat through the lens." />
@@ -27,8 +22,8 @@
       property="og:description"
       content="Unofficial fan redesign of the Bodycam website. Scroll to scrub the feed."
     />
-    <meta property="og:url" content="%VITE_SITE_URL%/" />
-    <meta property="og:image" content="%VITE_SITE_URL%/og.jpg" />
+    <meta property="og:url" content="https://bodycam.sfalter.de/" />
+    <meta property="og:image" content="https://bodycam.sfalter.de/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Body-camera view of a burned forest with the Bodycam HUD overlay" />
@@ -36,7 +31,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Bodycam — See combat through the lens." />
     <meta name="twitter:description" content="Unofficial fan redesign of the Bodycam website. Scroll to scrub the feed." />
-    <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
+    <meta name="twitter:image" content="https://bodycam.sfalter.de/og.jpg" />
 
     <!-- Structured Data: beschreibt das Spiel (Subjekt der Seite), nicht
          diese Seite als offizielle Quelle — die bleibt laut Footer-Disclaimer
@@ -46,7 +41,7 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Bodycam",
-        "url": "%VITE_SITE_URL%/",
+        "url": "https://bodycam.sfalter.de/",
         "description": "Unofficial fan redesign of the Bodycam website — a body-camera-perspective tactical shooter by Reissad Studio."
       }
     </script>
@@ -56,7 +51,7 @@
         "@type": "VideoGame",
         "name": "Bodycam",
         "url": "https://store.steampowered.com/app/2406770/Bodycam/",
-        "image": "%VITE_SITE_URL%/og.jpg",
+        "image": "https://bodycam.sfalter.de/og.jpg",
         "genre": ["Tactical Shooter", "First-Person Shooter"],
         "gamePlatform": "PC",
         "operatingSystem": "Windows",

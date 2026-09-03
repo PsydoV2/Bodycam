@@ -1,44 +1,34 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 
-// Erzeugt robots.txt + sitemap.xml im Build — an derselben VITE_SITE_URL
-// wie die %VITE_SITE_URL%-Platzhalter in index.html (Canonical/OG/JSON-LD,
-// siehe .env). Ein Wert für alles, damit ein Domain-/Subdomain-Wechsel
-// (z. B. bei einer Übernahme durch Reissad) nicht an mehreren Stellen
-// gepflegt werden muss. Läuft nur im Build (generateBundle), nicht im Dev-
-// Server — robots.txt/sitemap ohne feste Domain sind lokal ohnehin sinnlos.
+// Feste Domain statt .env-Variable — an einer Stelle gepflegt, verwendet
+// von allen SEO-Bausteinen unten (Canonical, robots.txt, sitemap.xml).
+const SITE_URL = 'https://bodycam.sfalter.de';
+
+// Erzeugt robots.txt + sitemap.xml im Build und hängt den Canonical-Link
+// an SITE_URL. Läuft nur im Build (generateBundle), nicht im Dev-Server.
 function seoFiles() {
-  let siteUrl = '';
   return {
     name: 'seo-files',
-    configResolved(config) {
-      siteUrl = (loadEnv(config.mode, process.cwd(), '').VITE_SITE_URL || '').replace(/\/+$/, '');
-    },
     // order: 'post' — läuft nach Vites eigenem HTML-Asset-Resolver, der
-    // sonst href="/" (leere VITE_SITE_URL) als Dateipfad zum Projektroot
-    // läse und mit EISDIR abbricht (siehe index.html-Kommentar). So bleibt
-    // ein Canonical-Link auch ohne gesetzte Domain build-sicher.
+    // ein statisches <link rel="canonical" href="..."> im Quelltext sonst
+    // als Datei-URL zu resolven versucht.
     transformIndexHtml: {
       order: 'post',
       handler() {
-        return [{ tag: 'link', attrs: { rel: 'canonical', href: `${siteUrl}/` }, injectTo: 'head' }];
+        return [{ tag: 'link', attrs: { rel: 'canonical', href: `${SITE_URL}/` }, injectTo: 'head' }];
       },
     },
     generateBundle() {
       this.emitFile({
         type: 'asset',
         fileName: 'robots.txt',
-        source: `User-agent: *\nAllow: /\n${siteUrl ? `\nSitemap: ${siteUrl}/sitemap.xml\n` : ''}`,
+        source: `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`,
       });
-      // Eine Sitemap ohne absolute Domain ist laut Spec ungültig (<loc>
-      // muss absolut sein) — ohne gesetzte VITE_SITE_URL lassen wir sie
-      // ganz weg, statt eine kaputte Datei auszuliefern.
-      if (siteUrl) {
-        this.emitFile({
-          type: 'asset',
-          fileName: 'sitemap.xml',
-          source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${siteUrl}/</loc>\n  </url>\n</urlset>\n`,
-        });
-      }
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${SITE_URL}/</loc>\n  </url>\n</urlset>\n`,
+      });
     },
   };
 }
