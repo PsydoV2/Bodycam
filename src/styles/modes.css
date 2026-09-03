@@ -6,31 +6,6 @@
   list-style: none;
 }
 
-/* Trennlinien laufen full-bleed (siehe .hairline-row in layout.css). */
-.mode-row {
-  position: relative;
-}
-
-.mode-row::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100vw;
-  right: -100vw;
-  border-top: 1px solid var(--line);
-  pointer-events: none;
-}
-
-.mode-list li:last-child::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -100vw;
-  right: -100vw;
-  border-bottom: 1px solid var(--line);
-  pointer-events: none;
-}
-
 .mode-header {
   width: 100%;
   display: flex;

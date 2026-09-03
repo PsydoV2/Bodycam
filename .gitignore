@@ -17,6 +17,9 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+
+# Playwright MCP debug snapshots
+.playwright-mcp
 *.suo
 *.ntvs*
 *.njsproj
