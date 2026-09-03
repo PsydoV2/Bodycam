@@ -9,10 +9,17 @@
       name="description"
       content="Unofficial fan redesign of the Bodycam website — a body-camera-perspective tactical shooter by Reissad Studio. Scroll to scrub the feed."
     />
-    <title>Bodycam</title>
+    <meta name="robots" content="index, follow" />
+    <title>Bodycam — See combat through the lens.</title>
 
-    <!-- Social Preview — %VITE_SITE_URL% kommt aus .env / .env.local (leer =
-         relative URLs; für Discord/X/Facebook braucht es die absolute Domain). -->
+    <!-- Social Preview + SEO — %VITE_SITE_URL% kommt aus .env / .env.local
+         (leer = relative URLs; für Discord/X/Facebook und JSON-LD braucht
+         es die absolute Domain). Der Canonical-Link sowie robots.txt/
+         sitemap.xml werden von vite.config.js aus derselben Variable
+         erzeugt statt hier als %VITE_SITE_URL%-Platzhalter zu stehen —
+         Vites Asset-URL-Resolver liest ein <link href="/"> (leere
+         VITE_SITE_URL) sonst als Pfad zum Projektroot und bricht den
+         Build mit EISDIR ab. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Bodycam" />
     <meta property="og:title" content="Bodycam — See combat through the lens." />
@@ -25,10 +32,51 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Body-camera view of a burned forest with the Bodycam HUD overlay" />
+    <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Bodycam — See combat through the lens." />
     <meta name="twitter:description" content="Unofficial fan redesign of the Bodycam website. Scroll to scrub the feed." />
     <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
+
+    <!-- Structured Data: beschreibt das Spiel (Subjekt der Seite), nicht
+         diese Seite als offizielle Quelle — die bleibt laut Footer-Disclaimer
+         ausdrücklich ein inoffizielles Fan-Redesign. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Bodycam",
+        "url": "%VITE_SITE_URL%/",
+        "description": "Unofficial fan redesign of the Bodycam website — a body-camera-perspective tactical shooter by Reissad Studio."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Bodycam",
+        "url": "https://store.steampowered.com/app/2406770/Bodycam/",
+        "image": "%VITE_SITE_URL%/og.jpg",
+        "genre": ["Tactical Shooter", "First-Person Shooter"],
+        "gamePlatform": "PC",
+        "operatingSystem": "Windows",
+        "applicationCategory": "Game",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Reissad Studio",
+          "url": "https://reissad.com/"
+        },
+        "sameAs": [
+          "https://store.steampowered.com/app/2406770/Bodycam/",
+          "https://discord.com/invite/reissadStudio",
+          "https://www.instagram.com/reissad.studio/",
+          "https://www.youtube.com/channel/UCMIffKtAnf0y0FE1NM1HgkA",
+          "https://www.tiktok.com/@reissad.studio",
+          "https://www.twitch.tv/reissadstudio",
+          "https://twitter.com/ReissadStudio"
+        ]
+      }
+    </script>
     <script>
       // Synchron, vor dem ersten Paint: schaltet die Scroll-Reveal-Zustände
       // nur frei, wenn JS tatsächlich läuft — ohne JS bleibt alles sofort sichtbar.
