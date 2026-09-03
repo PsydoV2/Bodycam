@@ -162,7 +162,7 @@ Unverändert gegenüber v1 — weiterhin gültig:
 
 **Ausgelieferte Clips** (`public/clips/`, 720p, 8s, WebM VP9 + MP4 H.264, je Clip ein Poster-WebP): `clip-urban` (aus 213035) · `clip-outskirts` (aus 213312) · `clip-explosion` (aus 213626, Segment um den hellsten Frame). Zusammen unter 15 MB statt 75 MB; die Poster laufen bis zum ersten Video-Frame durch denselben Shader. Neue Clips bitte über dieselbe Pipeline ziehen (720p, 8s, beide Container, Poster).
 
-**Social Preview:** `public/og.jpg` (1200×630, aus dem Hero-Screenshot mit den Seitenschriften gesetzt). Die absolute URL kommt aus `VITE_SITE_URL` (`.env.local`).
+**Social Preview:** `public/og.jpg` (1200×630, aus dem Hero-Screenshot mit den Seitenschriften gesetzt). Die absolute URL ist als `SITE_URL` in `vite.config.js` fest hinterlegt (`https://bodycam.sfalter.de`).
 
 ---
 
